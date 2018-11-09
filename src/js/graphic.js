@@ -131,11 +131,11 @@ function test() {
 	let i = 0;
 	setInterval(() => {
 		const d = yearData[i];
-		const { ccn3, flag } = countryData.find(c => c.common === d.country);
-		goTo({ ccn3 });
+		const match = countryData.find(c => c.common === d.country);
+		goTo({ ccn3: match.ccn3 || USA_ID });
 		$section
 			.select('h3')
-			.html(`${yearData[i].year} <span class="flag">${flag}</span>`);
+			.html(`${yearData[i].year} <span class="flag">${match.flag}</span>`);
 		i += 1;
 	}, 2500);
 }
