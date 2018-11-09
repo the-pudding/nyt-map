@@ -1,0 +1,35 @@
+#globe
+	h3
+		text-align center
+		.flag
+			font-size 2em
+			vertical-align middle
+	svg
+		display block
+		margin 0 auto
+		.graticule
+			fill none
+			stroke $gray-light
+			stroke-dasharray 4px 4px
+			display none
+
+		.land
+			fill $gray-light
+
+		.outline
+			fill none
+			stroke $gray
+			stroke-width 2px
+			display none
+
+		.sphere
+			fill $off-white
+
+		.country
+			fill $gray-light
+			transition fill 1000ms ease-in-out
+			stroke $off-white
+			stroke-width 0.5px
+			stroke-opacity 0.5
+			&.is-active
+				fill goldenrod
