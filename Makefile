@@ -26,3 +26,5 @@ copy-data:
 	cp ~/Pudding/helpers/nyt-map-data/output/countries.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result-by-year--page-one.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--page-one.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-year--all.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--all.csv src/assets/data

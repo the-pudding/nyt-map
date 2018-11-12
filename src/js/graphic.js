@@ -1,5 +1,6 @@
 /* global d3 */
 import * as topojson from 'topojson';
+import * as noUiSlider from 'nouislider';
 
 const MONTHS = [
 	'Jan',
@@ -25,7 +26,12 @@ let monthData = [];
 let countries = [];
 
 const $section = d3.select('#globe');
-const $svg = $section.select('svg');
+const $svg = $section.select('.globe__svg');
+const $current = $section.select('.globe__current');
+const $byMonthList = $section.select('.globe__by-month ul');
+const $slider = $section.select('.globe__slider');
+const $sliderNode = $slider.node();
+
 let $outline = null;
 let $sphere = null;
 let $pathCountry = null;
@@ -93,6 +99,31 @@ function goTo({ ccn3, duration = 2000 }) {
 	} else console.log('--- no match ---');
 }
 
+function update(d) {
+	const match = countryData.find(c => c.common === d.country);
+	goTo({ ccn3: match.ccn3 || USA_ID });
+	const { year } = d;
+	$current.select('.current__year').text(year);
+	$current.select('.current__flag').text(match.flag);
+	const monthInYearData = monthData.filter(m => m.year === year);
+	const $li = $byMonthList.selectAll('li').data(monthInYearData);
+	const $liEnter = $li.enter().append('li');
+	$liEnter
+		.merge($li)
+		.html(
+			(datum, index) =>
+				`<span class="month">${MONTHS[index]}:</span> <span class="country">${
+					datum.country
+				}</span>`
+		);
+}
+
+function handleChange(value) {
+	const index = +value;
+	const d = yearData[index];
+	update(d);
+}
+
 function setup() {
 	projection = d3.geoOrthographic();
 	path = d3.geoPath().projection(projection);
@@ -131,13 +162,10 @@ function test() {
 	let i = 0;
 	setInterval(() => {
 		const d = yearData[i];
-		const match = countryData.find(c => c.common === d.country);
-		goTo({ ccn3: match.ccn3 || USA_ID });
-		$section
-			.select('h3')
-			.html(`${yearData[i].year} <span class="flag">${match.flag}</span>`);
+		update(d);
+		// $sliderNode.noUiSlider.set(currentDay);
 		i += 1;
-	}, 2500);
+	}, 3000);
 }
 
 function setupTimeline() {
@@ -166,6 +194,46 @@ function setupTimeline() {
 		const match = countryData.find(c => c.common === d.country);
 		return match ? match.flag : '';
 	});
+	$li.append('span.name').text(d => d.country);
+}
+
+function setupSlider() {
+	const min = 0;
+	const max = yearData.length - 1;
+	const start = 0;
+
+	const slider = noUiSlider.create($sliderNode, {
+		start,
+		step: 1,
+		// pips: {
+		// 	filter: value => {
+		// 		const data = nestedData[Math.round(value)];
+		// 		return data.key.endsWith('01') ? 1 : 0;
+		// 	},
+		// 	mode: 'steps',
+		// 	format: {
+		// 		to: value => {
+		// 			const data = nestedData[Math.round(value)];
+		// 			if (data.key.endsWith('01')) return data.dateDisplay.substring(4, 7);
+		// 		}
+		// 	}
+		// },
+		tooltips: [
+			{
+				to: value => {
+					const data = yearData[Math.round(value)];
+					return data.year;
+				}
+			}
+		],
+		range: {
+			min,
+			max
+		}
+	});
+
+	// slider.on('slide', handleSlide);
+	slider.on('change', handleChange);
 }
 
 function loadResults() {
@@ -174,11 +242,12 @@ function loadResults() {
 	const filepaths = files.map(d => `assets/data/result-${d}--${suffix}.csv`);
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
-		yearData = response[0];
-		monthData = response[1];
+		yearData = response[0].filter(d => +d.year < 2018);
+		monthData = response[1].filter(d => +d.year < 2018);
 
 		test();
 		setupTimeline();
+		setupSlider();
 	});
 }
 
@@ -192,11 +261,6 @@ function init() {
 		setup();
 		resize();
 		loadResults();
-		// setInterval(() => {
-		// 	const r = Math.floor(Math.random() * countryData.length);
-		// 	console.log(countryData[r].common);
-		// 	goTo({ id: countryData[r].ccn3 });
-		// }, 3500);
 	});
 }
 

@@ -1,10 +1,14 @@
 #globe
-	h3
+	position relative
+	.globe__current
 		text-align center
-		.flag
-			font-size 2em
-			vertical-align middle
-	svg
+		margin 0
+	
+	.current__flag
+		font-size 2em
+		vertical-align middle
+
+	.globe__svg
 		display block
 		margin 0 auto
 		.graticule
@@ -33,3 +37,15 @@
 			stroke-opacity 0.5
 			&.is-active
 				fill goldenrod
+
+	.globe__by-month
+		position absolute
+		top 1rem
+		left 1rem
+		p
+			margin 0
+		
+
+	.globe__slider
+		max-width 30rem
+		margin 0 auto
