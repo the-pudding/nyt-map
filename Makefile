@@ -28,3 +28,7 @@ copy-data:
 	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--page-one.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result-by-year--all.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--all.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-year--weighted-2.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--weighted-2.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-year--weighted-10.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result-by-month--weighted-10.csv src/assets/data

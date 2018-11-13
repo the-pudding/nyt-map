@@ -237,13 +237,73 @@ function setupSlider() {
 }
 
 function loadResults() {
-	const suffix = 'page-one';
-	const files = ['by-year', 'by-month'];
-	const filepaths = files.map(d => `assets/data/result-${d}--${suffix}.csv`);
+	// const suffix = 'page-one';
+	// const suffix = 'all';
+	const files = [
+		'by-year--all',
+		'by-month--all',
+		'by-year--page-one',
+		'by-month--page-one',
+		'by-year--weighted-2',
+		'by-month--weighted-2',
+		'by-year--weighted-10',
+		'by-month--weighted-10'
+	];
+	const filepaths = files.map(d => `assets/data/result-${d}.csv`);
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
 		yearData = response[0].filter(d => +d.year < 2018);
 		monthData = response[1].filter(d => +d.year < 2018);
+		const yearData1 = response[2].filter(d => +d.year < 2018);
+		const monthData1 = response[3].filter(d => +d.year < 2018);
+		const yearData2 = response[4].filter(d => +d.year < 2018);
+		const monthData2 = response[5].filter(d => +d.year < 2018);
+		const yearData3 = response[6].filter(d => +d.year < 2018);
+		const monthData3 = response[7].filter(d => +d.year < 2018);
+
+		const devYear = ['year,all,page1,weighted2,weighted10'];
+		yearData.forEach((a, i) => {
+			const b = yearData1[i];
+			const c = yearData2[i];
+			const d = yearData3[i];
+
+			if (
+				a.country !== b.country ||
+				a.country !== c.country ||
+				a.country !== d.country ||
+				b.country !== c.country ||
+				b.country !== d.country ||
+				c.country !== d.country
+			)
+				devYear.push(
+					`${a.year},${a.country},${b.country},${c.country},${d.country}`
+				);
+		});
+
+		window.year = devYear.join('\n');
+
+		const devMonth = ['year,month,all,page1,weighted2,weighted10'];
+		monthData.forEach((a, i) => {
+			const b = monthData1[i];
+			const c = monthData2[i];
+			const d = monthData3[i];
+
+			if (
+				a.country !== b.country ||
+				a.country !== c.country ||
+				a.country !== d.country ||
+				b.country !== c.country ||
+				b.country !== d.country ||
+				c.country !== d.country
+			)
+				devMonth.push(
+					`${a.year},${a.month},${a.country},${b.country},${c.country},${
+						d.country
+					}`
+				);
+		});
+
+		window.month = devMonth.join('\n');
 
 		test();
 		setupTimeline();
