@@ -29,6 +29,7 @@ const $section = d3.select('#globe');
 const $svg = $section.select('.globe__svg');
 const $current = $section.select('.globe__current');
 const $byMonthList = $section.select('.globe__by-month ul');
+const $subregionList = $section.select('.globe__subregion ul');
 const $slider = $section.select('.globe__slider');
 const $sliderNode = $slider.node();
 
@@ -99,10 +100,30 @@ function goTo({ ccn3, duration = 2000 }) {
 	} else console.log('--- no match ---');
 }
 
-function update(d) {
-	const match = countryData.find(c => c.common === d.country);
+function updateSubregion(index) {
+	const sliced = yearData
+		.slice(0, index + 1)
+		.map(d => countryData.find(c => c.common === d.country));
+	const nested = d3
+		.nest()
+		.key(d => d.subregion)
+		.rollup(values => values.length)
+		.entries(sliced);
+
+	const $li = $subregionList.selectAll('li').data(nested, d => d.key);
+	const $liEnter = $li.enter().append('li');
+	$liEnter.merge($li).text(d => `${d.key}: ${d.value}`);
+	$li.exit().remove();
+}
+
+function update(index) {
+	const datum = yearData[index];
+	const match = countryData.find(c => c.common === datum.country);
 	goTo({ ccn3: match.ccn3 || USA_ID });
-	const { year } = d;
+	const { year } = datum;
+
+	updateSubregion(index);
+
 	$current.select('.current__year').text(year);
 	$current.select('.current__flag').text(match.flag);
 	const monthInYearData = monthData.filter(m => m.year === year);
@@ -111,61 +132,18 @@ function update(d) {
 	$liEnter
 		.merge($li)
 		.html(
-			(datum, index) =>
-				`<span class="month">${MONTHS[index]}:</span> <span class="country">${
+			(d, i) =>
+				`<span class="month">${MONTHS[i]}:</span> <span class="country">${
 					datum.country
 				}</span>`
 		);
+
+	$li.exit().remove();
 }
 
 function handleChange(value) {
 	const index = +value;
-	const d = yearData[index];
-	update(d);
-}
-
-function setup() {
-	projection = d3.geoOrthographic();
-	path = d3.geoPath().projection(projection);
-
-	countries = topojson.feature(worldData, worldData.objects.countries).features;
-	// const land = topojson.feature(worldData, worldData.objects.land);
-
-	$sphere = $svg.append('path.sphere');
-	$pathGrat = $svg.append('path.graticule');
-	// const $pathLand = $svg.append('path.land');
-	$pathCountry = $svg
-		.selectAll('.country')
-		.data(countries)
-		.enter()
-		.append('path.country');
-
-	$outline = $svg.append('circle.outline');
-
-	const graticule = d3.geoGraticule();
-	$pathGrat.datum(graticule);
-
-	// $pathLand.datum(land).at('d', path);
-	goTo({ ccn3: USA_ID, duration: 0 }); // start at usa
-}
-
-function cleanCountry(data) {
-	return data.map(d => ({
-		...d,
-		ccn3: +d.ccn3,
-		lat: +d.latlng.split(',')[0].trim(),
-		lng: +d.latlng.split(',')[1].trim()
-	}));
-}
-
-function test() {
-	let i = 0;
-	setInterval(() => {
-		const d = yearData[i];
-		update(d);
-		// $sliderNode.noUiSlider.set(currentDay);
-		i += 1;
-	}, 3000);
+	update(index);
 }
 
 function setupTimeline() {
@@ -236,16 +214,59 @@ function setupSlider() {
 	slider.on('change', handleChange);
 }
 
+function setup() {
+	projection = d3.geoOrthographic();
+	path = d3.geoPath().projection(projection);
+
+	countries = topojson.feature(worldData, worldData.objects.countries).features;
+	// const land = topojson.feature(worldData, worldData.objects.land);
+
+	$sphere = $svg.append('path.sphere');
+	$pathGrat = $svg.append('path.graticule');
+	// const $pathLand = $svg.append('path.land');
+	$pathCountry = $svg
+		.selectAll('.country')
+		.data(countries)
+		.enter()
+		.append('path.country');
+
+	$outline = $svg.append('circle.outline');
+
+	const graticule = d3.geoGraticule();
+	$pathGrat.datum(graticule);
+
+	// $pathLand.datum(land).at('d', path);
+	goTo({ ccn3: USA_ID, duration: 0 }); // start at usa
+}
+
+function cleanCountry(data) {
+	return data.map(d => ({
+		...d,
+		ccn3: +d.ccn3,
+		lat: +d.latlng.split(',')[0].trim(),
+		lng: +d.latlng.split(',')[1].trim()
+	}));
+}
+
+function test() {
+	let i = 0;
+	setInterval(() => {
+		update(i);
+		// $sliderNode.noUiSlider.set(currentDay);
+		i += 1;
+	}, 3000);
+}
+
 function loadResults() {
 	// const suffix = 'page-one';
 	// const suffix = 'all';
 	const files = [
-		'by-year--all',
-		'by-month--all',
-		'by-year--page-one',
-		'by-month--page-one',
-		'by-year--weighted-2',
-		'by-month--weighted-2',
+		// 'by-year--all',
+		// 'by-month--all',
+		// 'by-year--page-one',
+		// 'by-month--page-one',
+		// 'by-year--weighted-2',
+		// 'by-month--weighted-2',
 		'by-year--weighted-10',
 		'by-month--weighted-10'
 	];
@@ -254,57 +275,6 @@ function loadResults() {
 		if (err) console.log(err);
 		yearData = response[0].filter(d => +d.year < 2018);
 		monthData = response[1].filter(d => +d.year < 2018);
-		const yearData1 = response[2].filter(d => +d.year < 2018);
-		const monthData1 = response[3].filter(d => +d.year < 2018);
-		const yearData2 = response[4].filter(d => +d.year < 2018);
-		const monthData2 = response[5].filter(d => +d.year < 2018);
-		const yearData3 = response[6].filter(d => +d.year < 2018);
-		const monthData3 = response[7].filter(d => +d.year < 2018);
-
-		const devYear = ['year,all,page1,weighted2,weighted10'];
-		yearData.forEach((a, i) => {
-			const b = yearData1[i];
-			const c = yearData2[i];
-			const d = yearData3[i];
-
-			if (
-				a.country !== b.country ||
-				a.country !== c.country ||
-				a.country !== d.country ||
-				b.country !== c.country ||
-				b.country !== d.country ||
-				c.country !== d.country
-			)
-				devYear.push(
-					`${a.year},${a.country},${b.country},${c.country},${d.country}`
-				);
-		});
-
-		window.year = devYear.join('\n');
-
-		const devMonth = ['year,month,all,page1,weighted2,weighted10'];
-		monthData.forEach((a, i) => {
-			const b = monthData1[i];
-			const c = monthData2[i];
-			const d = monthData3[i];
-
-			if (
-				a.country !== b.country ||
-				a.country !== c.country ||
-				a.country !== d.country ||
-				b.country !== c.country ||
-				b.country !== d.country ||
-				c.country !== d.country
-			)
-				devMonth.push(
-					`${a.year},${a.month},${a.country},${b.country},${c.country},${
-						d.country
-					}`
-				);
-		});
-
-		window.month = devMonth.join('\n');
-
 		test();
 		setupTimeline();
 		setupSlider();
