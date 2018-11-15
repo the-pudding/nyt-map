@@ -43,6 +43,8 @@ let path = null;
 let radius = 0;
 let scale = 0;
 
+let currentIndex = 0;
+
 function resize() {
 	const h = window.innerHeight;
 	const w = $section.node().offsetWidth;
@@ -100,9 +102,9 @@ function goTo({ ccn3, duration = 2000 }) {
 	} else console.log('--- no match ---');
 }
 
-function updateSubregion(index) {
+function updateSubregion() {
 	const sliced = yearData
-		.slice(0, index + 1)
+		.slice(0, currentIndex + 1)
 		.map(d => countryData.find(c => c.common === d.country));
 	const nested = d3
 		.nest()
@@ -116,13 +118,13 @@ function updateSubregion(index) {
 	$li.exit().remove();
 }
 
-function update(index) {
-	const datum = yearData[index];
+function update() {
+	const datum = yearData[currentIndex];
 	const match = countryData.find(c => c.common === datum.country);
 	goTo({ ccn3: match.ccn3 || USA_ID });
 	const { year } = datum;
 
-	updateSubregion(index);
+	updateSubregion();
 
 	$current.select('.current__year').text(year);
 	$current.select('.current__flag').text(match.flag);
@@ -142,8 +144,8 @@ function update(index) {
 }
 
 function handleChange(value) {
-	const index = +value;
-	update(index);
+	currentIndex = +value;
+	update();
 }
 
 function setupTimeline() {
@@ -249,11 +251,10 @@ function cleanCountry(data) {
 }
 
 function test() {
-	let i = 0;
 	setInterval(() => {
-		update(i);
+		update();
 		// $sliderNode.noUiSlider.set(currentDay);
-		i += 1;
+		currentIndex += 1;
 	}, 3000);
 }
 
