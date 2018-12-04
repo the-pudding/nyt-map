@@ -27,18 +27,18 @@
 			display none
 
 		.sphere
-			fill $off-white
+			fill $beige-dark
 
 		.country
-			fill $gray-light
+			fill lighten($beige-dark, 15)
 			transition fill 1000ms ease-in-out
 			stroke $off-white
 			stroke-width 0.5px
 			stroke-opacity 0.5
 			&.is-active
-				fill goldenrod
+				fill $secondary
 
-	.globe__by-month
+	.globe__headlines
 		position absolute
 		top 1rem
 		left 1rem

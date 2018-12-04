@@ -12,6 +12,7 @@
     "lodash.debounce": "^4.0.8",
     "nouislider": "^12.1.0",
     "promise-polyfill": "^8.1.0",
+    "roughjs": "2.2.5",
     "superagent": "^3.8.3",
     "topojson": "3.0.2"
   },

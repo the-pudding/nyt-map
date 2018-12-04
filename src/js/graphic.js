@@ -18,7 +18,7 @@ const MONTHS = [
 ];
 const PADDING = 12;
 const USA_ID = 840;
-
+const SKIP_YEAR = 1964;
 let countryData = [];
 let worldData = [];
 let yearData = [];
@@ -105,22 +105,25 @@ function goTo({ ccn3, duration = 2000 }) {
 function updateSubregion() {
 	const sliced = yearData
 		.slice(0, currentIndex + 1)
-		.map(d => countryData.find(c => c.common === d.country));
+		.map(d => countryData.find(c => c.commonLower === d.country));
 	const nested = d3
 		.nest()
 		.key(d => d.subregion)
 		.rollup(values => values.length)
 		.entries(sliced);
 
-	const $li = $subregionList.selectAll('li').data(nested, d => d.key);
+	nested.sort((a, b) => d3.descending(a.value, b.value));
+
+	$subregionList.selectAll('li').remove();
+
+	const $li = $subregionList.selectAll('li').data(nested);
 	const $liEnter = $li.enter().append('li');
-	$liEnter.merge($li).text(d => `${d.key}: ${d.value}`);
-	$li.exit().remove();
+	$liEnter.text(d => `${d.key}: ${d.value}`);
 }
 
 function update() {
 	const datum = yearData[currentIndex];
-	const match = countryData.find(c => c.common === datum.country);
+	const match = countryData.find(c => c.commonLower === datum.country);
 	goTo({ ccn3: match.ccn3 || USA_ID });
 	const { year } = datum;
 
@@ -128,19 +131,7 @@ function update() {
 
 	$current.select('.current__year').text(year);
 	$current.select('.current__flag').text(match.flag);
-	const monthInYearData = monthData.filter(m => m.year === year);
-	const $li = $byMonthList.selectAll('li').data(monthInYearData);
-	const $liEnter = $li.enter().append('li');
-	$liEnter
-		.merge($li)
-		.html(
-			(d, i) =>
-				`<span class="month">${MONTHS[i]}:</span> <span class="country">${
-					datum.country
-				}</span>`
-		);
-
-	$li.exit().remove();
+	$current.select('.current__country').text(match.common);
 }
 
 function handleChange(value) {
@@ -160,7 +151,7 @@ function setupTimeline() {
 		.data(nested)
 		.enter()
 		.append('div.year');
-	const $hed = $year.append('h3').text(d => d.key);
+	const $hed = $year.append('h3.title').text(d => d.key);
 	const $ul = $year.append('ul');
 
 	const $li = $ul
@@ -171,10 +162,13 @@ function setupTimeline() {
 
 	$li.append('span.month').text(d => MONTHS[+d.month - 1]);
 	$li.append('span.flag').text(d => {
-		const match = countryData.find(c => c.common === d.country);
+		const match = countryData.find(c => c.commonLower === d.country);
 		return match ? match.flag : '';
 	});
-	$li.append('span.name').text(d => d.country);
+	$li.append('span.name').text(d => {
+		const match = countryData.find(c => c.commonLower === d.country);
+		return match ? match.common : '';
+	});
 }
 
 function setupSlider() {
@@ -246,6 +240,7 @@ function cleanCountry(data) {
 		...d,
 		ccn3: +d.ccn3,
 		lat: +d.latlng.split(',')[0].trim(),
+		commonLower: d.common.toLowerCase(),
 		lng: +d.latlng.split(',')[1].trim()
 	}));
 }
@@ -261,17 +256,8 @@ function test() {
 function loadResults() {
 	// const suffix = 'page-one';
 	// const suffix = 'all';
-	const files = [
-		// 'by-year--all',
-		// 'by-month--all',
-		// 'by-year--page-one',
-		// 'by-month--page-one',
-		// 'by-year--weighted-2',
-		// 'by-month--weighted-2',
-		'by-year--weighted-10',
-		'by-month--weighted-10'
-	];
-	const filepaths = files.map(d => `assets/data/result-${d}.csv`);
+	const files = ['year', 'month'];
+	const filepaths = files.map(d => `assets/data/result--${d}.csv`);
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
 		yearData = response[0].filter(d => +d.year < 2018);

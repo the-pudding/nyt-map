@@ -12,20 +12,26 @@ const makeRequest = (opt, cb) => {
 	request(url, (error, response, body) => {
 		const parsed = archieml.load(body);
 		const str = JSON.stringify(parsed);
-		const basePath = `${process.cwd()}`;
+		const basePath = process.cwd();
 		const file = `${basePath}/${opt.filepath || 'template-data/doc.json'}`;
-		const filepath = `${basePath}/${file}`;
-		fs.writeFile(filepath, str, err => {
+		fs.writeFile(file, str, err => {
 			if (err) console.error(err);
 			cb();
 		});
 	});
 };
 
-gulp.task('fetch-google', cb => {
-	if (doc.id) makeRequest(doc, cb);
-	else {
-		console.error('No google doc');
-		cb();
-	}
+gulp.task('fetch-doc', cb => {
+	let i = 0;
+	const next = () => {
+		const d = doc[i];
+		if (d.id)
+			makeRequest(d, () => {
+				i += 1;
+				if (i < doc.length) next();
+				else cb();
+			});
+	};
+
+	next();
 });

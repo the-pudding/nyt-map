@@ -1,0 +1,84 @@
+#timeline
+	display flex
+	flex-wrap wrap
+	justify-content center
+	flex-direction column
+	.year
+		position relative
+		margin 0 auto
+		width 24px * 12
+		+mq('bp-3')
+			width 36px * 12
+		+mq('bp-5')
+			width 48px * 12
+		
+	.year:first-of-type
+		li .month
+			display block
+	.title
+		text-align center
+		position absolute
+		bottom 0
+		left 0
+		transform translate(-125%, 4px)
+		margin 0
+		font-size 12px
+		line-height 48px
+	ul
+		display flex
+		justify-content center
+		margin 0 auto
+	li
+		display flex
+		flex-direction column
+		text-align center
+		line-height 1
+		position relative
+		cursor pointer
+		.month
+			display none
+			text-transform uppercase
+			margin-bottom 0.5rem
+			set-type-size(xxx-small, false)
+			color $gray-dark
+			+mq('bp-3')
+				set-type-size(xx-small, false)
+		.flag
+			display inline-block
+			line-height 18px
+			font-size 24px
+			transition 100ms ease-in-out
+			+mq('bp-3')
+				line-height 27px
+				font-size 36px
+			+mq('bp-5')
+				line-height 36px
+				font-size 48px
+		.name
+			line-height 1.25
+			set-type-size(x-small, false)
+			color $gray-dark
+			font-weight 500
+			position absolute
+			top 100%
+			left 50%
+			display none
+			pointer-events none
+			width 5.5rem
+			background-color $fg
+			color $bg
+			font-weight 600
+			z-index set-index(overlay)
+			// box-shadow 0 0 2px 2px $bg
+			// border 2px solid $bg
+			padding 0.5rem 0
+			transform translate(-50%, 1rem)
+
+
+		&:hover
+			.name
+				display block
+			.flag
+				text-shadow 0 0 4px $fg
+				transform scale(2)
+				z-index set-index(overlay)

@@ -1,13 +1,17 @@
 {
   "google": {
-    "doc": {
-      "id": "",
-      "filepath": ""
-    },
-    "sheet": {
-      "id": "",
-      "gid": "",
-      "filepath": ""
-    }
+    "doc": [
+      {
+        "id": "1_xBFUBbm5hJhPJw-hK53HQeJoNteVA7qbhwRNdC_WS0",
+        "filepath": ""
+      }
+    ],
+    "sheet": [
+      {
+        "id": "",
+        "gid": "",
+        "filepath": ""
+      }
+    ]
   }
 }
