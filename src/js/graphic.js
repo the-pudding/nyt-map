@@ -23,12 +23,13 @@ let countryData = [];
 let worldData = [];
 let yearData = [];
 let monthData = [];
+let subregionData = [];
 let countries = [];
 
 const $section = d3.select('#globe');
 const $svg = $section.select('.globe__svg');
 const $current = $section.select('.globe__current');
-const $byMonthList = $section.select('.globe__by-month ul');
+const $headlineList = $section.select('.globe__headline ul');
 const $subregionList = $section.select('.globe__subregion ul');
 const $slider = $section.select('.globe__slider');
 const $sliderNode = $slider.node();
@@ -106,17 +107,23 @@ function updateSubregion() {
 	const sliced = yearData
 		.slice(0, currentIndex + 1)
 		.map(d => countryData.find(c => c.commonLower === d.country));
+
 	const nested = d3
 		.nest()
 		.key(d => d.subregion)
 		.rollup(values => values.length)
 		.entries(sliced);
 
-	nested.sort((a, b) => d3.descending(a.value, b.value));
+	subregionData.forEach(s => {
+		const match = nested.find(n => n.key === s.key);
+		s.value = match ? match.value : 0;
+	});
+
+	subregionData.sort((a, b) => d3.descending(a.value, b.value));
 
 	$subregionList.selectAll('li').remove();
 
-	const $li = $subregionList.selectAll('li').data(nested);
+	const $li = $subregionList.selectAll('li').data(subregionData);
 	const $liEnter = $li.enter().append('li');
 	$liEnter.text(d => `${d.key}: ${d.value}`);
 }
@@ -235,6 +242,14 @@ function setup() {
 	goTo({ ccn3: USA_ID, duration: 0 }); // start at usa
 }
 
+function test() {
+	setInterval(() => {
+		update();
+		// $sliderNode.noUiSlider.set(currentDay);
+		currentIndex += 1;
+	}, 3000);
+}
+
 function cleanCountry(data) {
 	return data.map(d => ({
 		...d,
@@ -245,12 +260,12 @@ function cleanCountry(data) {
 	}));
 }
 
-function test() {
-	setInterval(() => {
-		update();
-		// $sliderNode.noUiSlider.set(currentDay);
-		currentIndex += 1;
-	}, 3000);
+function getSubregions(data) {
+	return d3
+		.nest()
+		.key(d => d.subregion)
+		.rollup(() => 0)
+		.entries(data);
 }
 
 function loadResults() {
@@ -275,6 +290,7 @@ function init() {
 		if (err) console.log(err);
 		countryData = cleanCountry(response[0]);
 		worldData = response[1];
+		subregionData = getSubregions(countryData);
 		setup();
 		resize();
 		loadResults();
