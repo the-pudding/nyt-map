@@ -1,12 +1,20 @@
 #globe
-	position relative
 	.globe__current
 		text-align center
 		margin 0
-	
+		font-weight 700
+		color $beige-text
+		line-height 1
+		display flex
+		justify-content center
+		align-items center
 	.current__flag
-		font-size 2em
-		vertical-align middle
+		font-size 4em
+		padding 0 1rem
+	.current__country
+		// 
+	.current__Year
+		// 
 
 	.globe__svg
 		display block
@@ -40,19 +48,37 @@
 
 	.globe__headline
 		position absolute
-		top 1rem
+		top 12rem
 		left 1rem
 		p
 			margin 0
+			font-weight 700
 	
 	.globe__subregion
 		position absolute
-		top 1rem
+		top 12rem
 		right 1rem
 		p
 			margin 0
+			text-align right
+			font-weight 700
+		li
+			text-align right
+			font-weight 700
+			color $beige-text
+			set-type-size(small, true)
 		
 
 	.globe__slider
 		max-width 30rem
-		margin 0 auto
+		margin 2rem auto
+		.noUi-tooltip
+			background-color $fg
+			color $bg
+			font-family $sans
+			font-weight 700
+			border none
+			border-radius 0
+			set-type-size(small)
+			letter-spacing 0.05em
+			transform translate(-50%, -12.5%)

@@ -26,13 +26,15 @@ let monthData = [];
 let subregionData = [];
 let countries = [];
 
-const $section = d3.select('#globe');
-const $svg = $section.select('.globe__svg');
-const $current = $section.select('.globe__current');
-const $headlineList = $section.select('.globe__headline ul');
-const $subregionList = $section.select('.globe__subregion ul');
-const $slider = $section.select('.globe__slider');
+const $globe = d3.select('#globe');
+const $svg = $globe.select('.globe__svg');
+const $current = $globe.select('.globe__current');
+const $headlineList = $globe.select('.globe__headline ul');
+const $subregionList = $globe.select('.globe__subregion ul');
+const $slider = $globe.select('.globe__slider');
 const $sliderNode = $slider.node();
+
+const $timeline = d3.select('#timeline');
 
 let $outline = null;
 let $sphere = null;
@@ -48,8 +50,8 @@ let currentIndex = 0;
 
 function resize() {
 	const h = window.innerHeight;
-	const w = $section.node().offsetWidth;
-	const sz = Math.min(w, h) * 0.75;
+	const w = $globe.node().offsetWidth;
+	const sz = Math.min(w, h) * 0.67;
 	const width = sz;
 	const height = sz;
 	$svg.at({ width, height });
@@ -119,7 +121,9 @@ function updateSubregion() {
 		s.value = match ? match.value : 0;
 	});
 
-	subregionData.sort((a, b) => d3.descending(a.value, b.value));
+	subregionData.sort(
+		(a, b) => d3.descending(a.value, b.value) || d3.ascending(a.key, b.key)
+	);
 
 	$subregionList.selectAll('li').remove();
 
@@ -152,8 +156,8 @@ function setupTimeline() {
 		.key(d => d.year)
 		.entries(monthData);
 
-	const $year = d3
-		.select('#timeline')
+	const $year = $timeline
+		.select('.chart')
 		.selectAll('.year')
 		.data(nested)
 		.enter()

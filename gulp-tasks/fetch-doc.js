@@ -12,6 +12,7 @@ const makeRequest = (opt, cb) => {
 	request(url, (error, response, body) => {
 		const parsed = archieml.load(body);
 		const str = JSON.stringify(parsed);
+		console.log(parsed)
 		const basePath = process.cwd();
 		const file = `${basePath}/${opt.filepath || 'template-data/doc.json'}`;
 		fs.writeFile(file, str, err => {
