@@ -140,8 +140,11 @@ function update() {
 
 	updateSubregion();
 
+	const flag = match.cca2.toLowerCase();
 	$current.select('.current__year').text(year);
-	$current.select('.current__flag').text(match.flag);
+	$current
+		.select('.current__flag')
+		.at('src', `assets/flags/jpg-4x3-192-q70/${flag}.jpg`);
 	$current.select('.current__country').text(match.common);
 }
 
@@ -172,10 +175,18 @@ function setupTimeline() {
 		.append('li');
 
 	$li.append('span.month').text(d => MONTHS[+d.month - 1]);
-	$li.append('span.flag').text(d => {
-		const match = countryData.find(c => c.commonLower === d.country);
-		return match ? match.flag : '';
+	// $li.append('span').at('class', d => {
+	// 	const { cca2 } = countryData.find(c => c.commonLower === d.country);
+	// 	return `flag flag-icon flag-icon-${cca2.toLowerCase()}`;
+	// });
+	$li.append('span.flag').html(d => {
+		const { cca2 } = countryData.find(c => c.commonLower === d.country);
+		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
 	});
+	// .text(d => {
+	// 	const match = countryData.find(c => c.commonLower === d.country);
+	// 	return match ? match.flag : '';
+	// });
 	$li.append('span.name').text(d => {
 		const match = countryData.find(c => c.commonLower === d.country);
 		return match ? match.common : '';

@@ -3,15 +3,16 @@
 	flex-wrap wrap
 	justify-content center
 	flex-direction column
+	// background $beige-dark
 	.year
 		position relative
 		margin 0 auto
 		font-weight 700
-		width 24px * 12
-		+mq('bp-3')
-			width 36px * 12
+		width 85%
+		max-width 50rem
+		transform translateX(1rem)
 		+mq('bp-5')
-			width 48px * 12
+			transform none
 		
 	.year:first-of-type li .month
 		display block
@@ -45,15 +46,12 @@
 				set-type-size(xx-small, false)
 		.flag
 			display inline-block
-			line-height 18px
-			font-size 24px
-			transition 100ms ease-in-out
-			+mq('bp-3')
-				line-height 27px
-				font-size 36px
-			+mq('bp-5')
-				line-height 36px
-				font-size 48px
+			line-height 1
+			// transition 100ms ease-in-out
+			// margin 4px
+			img
+				border 1px solid $fg
+				// box-shadow 0 0 2px $fg
 		.name
 			line-height 1
 			set-type-size(root, false)
@@ -71,16 +69,17 @@
 			font-weight 700
 			z-index set-index(overlay)
 			padding 0.5rem 0
-			transform translate(-50%, 0.75rem)
+			transform translate(-50%, 1.5rem)
 
 
 		&:hover
 			.name
 				display block
 			.flag
-				text-shadow 0 0 4px $fg
-				transform scale(2)
+				box-shadow 0px 0px 8px $fg
+				transform scale(1.5)
 				z-index set-index(overlay)
+				pointer-events none
 
 	.timeline__headline
 		top 5rem
