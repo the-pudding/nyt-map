@@ -160,7 +160,7 @@ function setupTimeline() {
 		.entries(monthData);
 
 	const $year = $timeline
-		.select('.chart')
+		.select('.figure__chart')
 		.selectAll('.year')
 		.data(nested)
 		.enter()
