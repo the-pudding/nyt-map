@@ -26,4 +26,5 @@ copy-data:
 	cp ~/Pudding/helpers/nyt-map-data/output/countries.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result--year.csv src/assets/data
 	cp ~/Pudding/helpers/nyt-map-data/output/result--month.csv src/assets/data
+	cp ~/Pudding/helpers/nyt-map-data/output/result--country.csv src/assets/data
 	
