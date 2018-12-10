@@ -1,4 +1,5 @@
 /* global d3 */
+import * as Annotate from 'd3-svg-annotation';
 import * as topojson from 'topojson';
 import * as noUiSlider from 'nouislider';
 
@@ -18,7 +19,8 @@ const MONTHS = [
 ];
 const PADDING = 12;
 const USA_ID = 840;
-const SKIP_YEAR = 1964;
+const FLAG_RATIO = 4 / 3;
+
 let countryData = [];
 let worldData = [];
 let yearData = [];
@@ -35,6 +37,8 @@ const $slider = $globe.select('.globe__slider');
 const $sliderNode = $slider.node();
 
 const $timeline = d3.select('#timeline');
+const $chart = $timeline.select('.figure__chart');
+const $annotation = $timeline.select('.figure__annotation');
 
 let $outline = null;
 let $sphere = null;
@@ -45,8 +49,24 @@ let projection = null;
 let path = null;
 let radius = 0;
 let scale = 0;
+let flagW = 0;
+let flagH = 0;
 
 let currentIndex = 0;
+
+function resizeTimeline() {
+	const $year = $timeline.select('.year');
+	if ($year.size()) {
+		const timelineW = $timeline.node().offsetWidth;
+		const yearW = $year.node().offsetWidth;
+		const sideW = (timelineW - yearW) / 2;
+		const annotationW = timelineW - sideW;
+		$annotation.st('width', annotationW);
+
+		flagW = yearW / 12;
+		flagH = flagW / FLAG_RATIO;
+	}
+}
 
 function resize() {
 	const h = window.innerHeight;
@@ -72,6 +92,8 @@ function resize() {
 
 	$pathGrat.at('d', path);
 	$pathCountry.at('d', path);
+
+	resizeTimeline();
 }
 
 function goTo({ ccn3, duration = 2000 }) {
@@ -159,13 +181,13 @@ function setupTimeline() {
 		.key(d => d.year)
 		.entries(monthData);
 
-	const $year = $timeline
-		.select('.figure__chart')
+	const $year = $chart
 		.selectAll('.year')
 		.data(nested)
 		.enter()
 		.append('div.year');
-	const $hed = $year.append('h3.title').text(d => d.key);
+
+	$year.append('h3.title').text(d => d.key);
 	const $ul = $year.append('ul');
 
 	const $li = $ul
@@ -175,22 +197,90 @@ function setupTimeline() {
 		.append('li');
 
 	$li.append('span.month').text(d => MONTHS[+d.month - 1]);
-	// $li.append('span').at('class', d => {
-	// 	const { cca2 } = countryData.find(c => c.commonLower === d.country);
-	// 	return `flag flag-icon flag-icon-${cca2.toLowerCase()}`;
-	// });
+
 	$li.append('span.flag').html(d => {
 		const { cca2 } = countryData.find(c => c.commonLower === d.country);
 		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
 	});
-	// .text(d => {
-	// 	const match = countryData.find(c => c.commonLower === d.country);
-	// 	return match ? match.flag : '';
-	// });
+
 	$li.append('span.name').text(d => {
 		const match = countryData.find(c => c.commonLower === d.country);
 		return match ? match.common : '';
 	});
+}
+
+function duplicateConnector() {
+	const $a = d3.select(this);
+	const $c = $a.select('.annotation-connector');
+	$c.classed('annotation-connector--bg', true);
+	const html = $c.html();
+	$a.append('g.annotation-connector.annotation-connector--fg').html(html);
+}
+
+function createAnnotation(data) {
+	$annotation.select('.g-annotation').remove();
+	const $anno = $annotation.append('g.g-annotation');
+
+	const type = Annotate.annotationCustomType(Annotate.annotationCalloutCurve, {
+		className: 'custom',
+		connector: { type: 'curve', end: 'dot' },
+		note: {
+			lineType: 'horizontal',
+			align: 'left'
+		}
+	});
+
+	const annotations = data.map(d => ({
+		note: {
+			title: d.year,
+			label: d.label,
+			padding: 0,
+			wrap: 110,
+			bgPadding: { top: 5, left: 5, right: 5, bottom: 5 }
+		},
+		data: { yearOff: d.year - 1900, month: d.month },
+		dx: (12 - d.month) * flagW + flagW,
+		dy: flagH * 3,
+		connector: { points: 1 }
+	}));
+
+	const makeAnnotations = Annotate.annotation()
+		.type(type)
+		.accessors({
+			x: d => d.month * flagW - flagW / 2,
+			y: d => d.yearOff * flagH + flagH / 2 + d.yearOff / 2
+		})
+		.annotations(annotations);
+
+	$anno.call(makeAnnotations);
+
+	$anno.selectAll('.annotation').each(duplicateConnector);
+	// $anno
+	// 	.selectAll('.annotation-note-title')
+	// 	.selectAll('tspan')
+	// 	.filter((d, i) => i !== 0)
+	// 	.at('dy', '1.4em');
+
+	// $anno
+	// 	.transition()
+	// 	.duration(dur)
+	// 	.delay(delay)
+	// 	.ease(EASE)
+	// 	.st('opacity', 1);
+}
+
+function setupAnnotation() {
+	resizeTimeline();
+
+	const annoData = [
+		{
+			year: 1907,
+			month: 6,
+			label: 'Lemonade is released'
+		}
+	];
+
+	createAnnotation(annoData);
 }
 
 function setupSlider() {
@@ -201,19 +291,6 @@ function setupSlider() {
 	const slider = noUiSlider.create($sliderNode, {
 		start,
 		step: 1,
-		// pips: {
-		// 	filter: value => {
-		// 		const data = nestedData[Math.round(value)];
-		// 		return data.key.endsWith('01') ? 1 : 0;
-		// 	},
-		// 	mode: 'steps',
-		// 	format: {
-		// 		to: value => {
-		// 			const data = nestedData[Math.round(value)];
-		// 			if (data.key.endsWith('01')) return data.dateDisplay.substring(4, 7);
-		// 		}
-		// 	}
-		// },
 		tooltips: [
 			{
 				to: value => {
@@ -294,6 +371,7 @@ function loadResults() {
 		monthData = response[1].filter(d => +d.year < 2018);
 		test();
 		setupTimeline();
+		setupAnnotation();
 		setupSlider();
 	});
 }
