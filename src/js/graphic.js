@@ -22,9 +22,11 @@ const FLAG_RATIO = 4 / 3;
 
 let countryData = [];
 let monthData = [];
-const countries = [];
+let alltimeData = [];
 
 const $timeline = d3.select('#timeline');
+const $alltime = d3.select('#alltime');
+const $ol = $alltime.select('ol');
 const $chart = $timeline.select('.figure__chart');
 const $annotation = $timeline.select('.figure__annotation');
 
@@ -45,8 +47,13 @@ function resizeTimeline() {
 	}
 }
 
+function resizeAlltime() {
+	$ol.selectAll('li').st('height', flagH);
+}
+
 function resize() {
 	resizeTimeline();
+	resizeAlltime();
 }
 
 function setupTimeline() {
@@ -168,18 +175,37 @@ function cleanCountry(data) {
 	}));
 }
 
+function setupAlltime() {
+	const w = $ol.node().offsetWidth;
+	const $li = $ol
+		.selectAll('li')
+		.data(alltimeData.slice(0, 50))
+		.enter()
+		.append('li');
+	const scale = d3
+		.scaleLinear()
+		.domain([0, alltimeData[0].value])
+		.range([0, w]);
+	$li
+		.st('width', d => scale(d.value))
+		.st('background-image', d => {
+			const { cca2 } = countryData.find(c => c.commonLower === d.key);
+			return `url("assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg")`;
+		});
+}
+
 function cleanCountryData(data) {
 	const nested = d3
 		.nest()
 		.key(d => d.country)
 		.rollup(
-			values => d3.mean(values, v => +v.percent)
+			values => d3.sum(values, v => +v.count) / d3.sum(values, v => +v.baseline)
 			// values => d3.sum(values, v => +v.count)
 		)
 		.entries(data);
 
 	nested.sort((a, b) => d3.descending(a.value, b.value));
-	console.table(nested);
+	return nested;
 }
 
 function loadResults() {
@@ -190,9 +216,10 @@ function loadResults() {
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
 		monthData = response[0].filter(d => +d.year < 2018);
-		// cleanCountryData(response[2]);
+		alltimeData = cleanCountryData(response[1]);
 		setupTimeline();
 		setupAnnotation();
+		setupAlltime();
 		resize();
 	});
 }
