@@ -1,11 +1,14 @@
 #timeline
 	figure
+		min-height 480px
 		position relative
+	
 	.figure__chart
 		display flex
 		flex-wrap wrap
 		justify-content center
 		flex-direction column
+	
 	.figure__annotation
 		position absolute
 		top 0
@@ -13,6 +16,8 @@
 		width 100%
 		height 100%
 		pointer-events none
+		z-index set-index(top)
+	
 	.year
 		position relative
 		margin 0 auto
@@ -22,10 +27,11 @@
 		transform translateX(1rem)
 		+mq('bp-5')
 			transform none
-		&:first-child .flag img 
+		&:first-child img 
 			border-top-color $bg
-		&:last-child .flag img
+		&:last-child img
 			border-bottom-color $bg
+	
 	.year:first-of-type li .month
 		display block
 
@@ -34,14 +40,16 @@
 		position absolute
 		bottom 0
 		left 0
-		transform translate(-125%, 4px)
+		transform translate(-175%, 4px)
 		margin 0
 		font-size 12px
 		line-height 48px
+	
 	ul
 		display flex
 		justify-content center
 		margin 0 auto
+	
 	li
 		display flex
 		flex-direction column
@@ -49,62 +57,67 @@
 		line-height 1
 		position relative
 		cursor pointer
-		&:first-child .flag img 
+		&:first-child img 
 			border-left-color $bg
-		&:last-child .flag img
+		&:last-child img
 			border-right-color $bg
-		.month
-			display none
-			text-transform uppercase
-			margin-bottom 0.5rem
-			position absolute
-			top 0
-			left 0
-			width 100%
-			transform translateY(-125%)
-			set-type-size(xxx-small, false)
-			+mq('bp-3')
-				set-type-size(xx-small, false)
-		.flag
-			display inline-block
-			line-height 1
-			transform scale(1)
-			position relative
-
-			img
-				border 1px solid $fg
-
-		.name
-			line-height 1
-			set-type-size(root, false)
-			letter-spacing 0.025em
-			color $gray-dark
-			font-weight 700
-			position absolute
-			top 100%
-			left 50%
-			visibility hidden
-			pointer-events none
-			width 6rem
-			background-color $fg
-			color $bg
-			font-weight 700
-			z-index set-index(overlay)
-			padding 0.5rem 0
-			transform translate(-50%, 1rem)
-
 
 		&:hover
 			.name
 				visibility visible
 				opacity 1
 			.flag
-				box-shadow 0px 0px 8px $fg
+				// box-shadow 0px 0px 8px $fg
 				transform scale(1.5)
-				z-index set-index(overlay)
+				z-index set-index(top)
 				pointer-events none
+				opacity 1
 				img
-					border-color $bg
+					border-color $fg
+
+	.month
+		display none
+		text-transform uppercase
+		margin-bottom 0.5rem
+		position absolute
+		top 0
+		left 0
+		width 100%
+		transform translateY(-200%)
+		set-type-size(xxx-small, false)
+		+mq('bp-3')
+			set-type-size(xx-small, false)
+	
+	.flag
+		display inline-block
+		line-height 1
+		transform scale(1)
+		position relative
+		opacity 0.6
+		img
+			border 1px solid $bg
+
+	.name
+		line-height 1
+		set-type-size(root, false)
+		letter-spacing 0.025em
+		color $gray-dark
+		font-weight 700
+		position absolute
+		top 100%
+		left 50%
+		visibility hidden
+		pointer-events none
+		width 6rem
+		background-color $fg
+		color $bg
+		font-weight 700
+		z-index set-index(top)
+		padding 0.5rem 0
+		transform translate(-50%, 1rem)
+
+
+		
 
 	.timeline__headline
 		top 5rem
