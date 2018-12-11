@@ -8,6 +8,7 @@ import { loadFontGroup } from './utils/load-font';
 
 const national = [
 	{ family: 'National 2 Narrow Web', weight: 200 },
+	{ family: 'National 2 Narrow Web', weight: 500 },
 	{ family: 'National 2 Narrow Web', weight: 700 },
 	{ family: 'National 2 Narrow Web', weight: 900 }
 ];
@@ -29,4 +30,4 @@ if (!window.Promise) window.Promise = Promise;
 // load fonts
 loadFontGroup(national);
 loadFontGroup(tiempos);
-loadFontGroup(atlas);
+// loadFontGroup(atlas);

@@ -1,7 +1,5 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
-import * as topojson from 'topojson';
-import * as noUiSlider from 'nouislider';
 
 const MONTHS = [
 	'Jan',
@@ -22,11 +20,11 @@ const FLAG_RATIO = 4 / 3;
 
 let countryData = [];
 let monthData = [];
-let alltimeData = [];
+// let alltimeData = [];
 
 const $timeline = d3.select('#timeline');
-const $alltime = d3.select('#alltime');
-const $ol = $alltime.select('ol');
+// const $alltime = d3.select('#alltime');
+// const $ol = $alltime.select('ol');
 const $chart = $timeline.select('.figure__chart');
 const $annotation = $timeline.select('.figure__annotation');
 
@@ -44,6 +42,8 @@ function resizeTimeline() {
 
 		flagW = yearW / 12;
 		flagH = flagW / FLAG_RATIO;
+
+		$timeline.selectAll('.flag').st({ width: flagW, height: flagH });
 	}
 }
 
@@ -80,14 +80,20 @@ function setupTimeline() {
 	$li.append('span.month').text(d => MONTHS[+d.month - 1]);
 
 	$li.append('span.flag').html(d => {
-		const { cca2 } = countryData.find(c => c.commonLower === d.country);
-
+		const match = countryData.find(c => c.commonLower === d.country) || {
+			cca2: 'none'
+		};
+		const { cca2 } = match;
+		if (d.year === '1900' && d.month === '01') {
+			return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">
+			<img src="assets/flags/jpg-4x3-192-q70/jp.jpg">`;
+		}
 		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
 	});
 
 	$li.append('span.name').text(d => {
 		const match = countryData.find(c => c.commonLower === d.country);
-		return match ? match.common : '';
+		return match ? match.common : d.country;
 	});
 }
 
@@ -175,51 +181,75 @@ function cleanCountry(data) {
 	}));
 }
 
-function setupAlltime() {
-	const w = $ol.node().offsetWidth;
-	const $li = $ol
-		.selectAll('li')
-		.data(alltimeData.slice(0, 50))
-		.enter()
-		.append('li');
-	const scale = d3
-		.scaleLinear()
-		.domain([0, alltimeData[0].value])
-		.range([0, w]);
-	$li
-		.st('width', d => scale(d.value))
-		.st('background-image', d => {
-			const { cca2 } = countryData.find(c => c.commonLower === d.key);
-			return `url("assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg")`;
-		});
-}
+// function setupAlltime() {
+// 	const w = $ol.node().offsetWidth;
+// 	const $li = $ol
+// 		.selectAll('li')
+// 		.data(alltimeData.slice(0, 50))
+// 		.enter()
+// 		.append('li');
+// 	const scale = d3
+// 		.scaleLinear()
+// 		.domain([0, alltimeData[0].value])
+// 		.range([0, w]);
+// 	$li
+// 		.st('width', d => scale(d.value))
+// 		.st('background-image', d => {
+// 			const match = countryData.find(c => c.commonLower === d.key) || {
+// 				cca2: 'none'
+// 			};
+// 			const { cca2 } = match;
+// 			return `url("assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg")`;
+// 		})
+// 		.st('background-size', `${flagW}px ${flagH}px`);
+// }
 
-function cleanCountryData(data) {
-	const nested = d3
-		.nest()
-		.key(d => d.country)
-		.rollup(
-			values => d3.sum(values, v => +v.count) / d3.sum(values, v => +v.baseline)
-			// values => d3.sum(values, v => +v.count)
-		)
-		.entries(data);
+// function cleanCountryData(data) {
+// 	const nested = d3
+// 		.nest()
+// 		.key(d => d.country)
+// 		.rollup(
+// 			values => d3.sum(values, v => +v.count) / d3.sum(values, v => +v.baseline)
+// 			// values => d3.sum(values, v => +v.count)
+// 		)
+// 		.entries(data);
 
-	nested.sort((a, b) => d3.descending(a.value, b.value));
-	return nested;
+// 	nested.sort((a, b) => d3.descending(a.value, b.value));
+// 	return nested;
+// }
+
+function fixGaps(data) {
+	const [a, b] = d3.extent(data, d => +d.year);
+	const years = d3
+		.range(a, b + 1)
+		.map(year => d3.range(MONTHS.length).map(m => ({ year, month: m + 1 })));
+	const flat = [].concat(...years);
+	const fill = flat.map(d => {
+		const match = data.find(v => +v.year === d.year && +v.month === d.month);
+		return (
+			match || {
+				year: d.year.toString(),
+				month: d3.format('02')(d.month),
+				country: 'N/A',
+				count: 0
+			}
+		);
+	});
+	return fill;
 }
 
 function loadResults() {
 	// const suffix = 'page-one';
 	// const suffix = 'all';
-	const files = ['month', 'country'];
+	const files = ['month'];
 	const filepaths = files.map(d => `assets/data/result--${d}.csv`);
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
-		monthData = response[0].filter(d => +d.year < 2018);
-		alltimeData = cleanCountryData(response[1]);
+		monthData = fixGaps(response[0].filter(d => +d.year < 2018));
+		// alltimeData = cleanCountryData(response[1]);
 		setupTimeline();
 		setupAnnotation();
-		setupAlltime();
+		// setupAlltime();
 		resize();
 	});
 }

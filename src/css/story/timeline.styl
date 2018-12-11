@@ -22,7 +22,10 @@
 		transform translateX(1rem)
 		+mq('bp-5')
 			transform none
-		
+		&:first-child .flag img 
+			border-top-color $bg
+		&:last-child .flag img
+			border-bottom-color $bg
 	.year:first-of-type li .month
 		display block
 
@@ -46,6 +49,10 @@
 		line-height 1
 		position relative
 		cursor pointer
+		&:first-child .flag img 
+			border-left-color $bg
+		&:last-child .flag img
+			border-right-color $bg
 		.month
 			display none
 			text-transform uppercase
@@ -62,8 +69,11 @@
 			display inline-block
 			line-height 1
 			transform scale(1)
+			position relative
+
 			img
 				border 1px solid $fg
+
 		.name
 			line-height 1
 			set-type-size(root, false)
@@ -93,6 +103,8 @@
 				transform scale(1.5)
 				z-index set-index(overlay)
 				pointer-events none
+				img
+					border-color $bg
 
 	.timeline__headline
 		top 5rem
