@@ -139,7 +139,8 @@ function setupLiContent(datum) {
 		.selectAll('.country')
 		.data(d => d.country)
 		.enter()
-		.append('div.country');
+		.append('div.country')
+		.classed('is-uk', d => d === 'united kingdom');
 
 	$country.append('span.flag').html(d => {
 		const match = countryData.find(c => c.commonLower === d) || {
