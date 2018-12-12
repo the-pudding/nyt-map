@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "d3-svg-annotation": "2.3.1",
+    "enter-view": "1.0.0",
     "fontfaceobserver": "^2.0.13",
     "lodash.debounce": "^4.0.8",
     "nouislider": "^12.1.0",

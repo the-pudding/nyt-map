@@ -1,5 +1,6 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
+import EnterView from 'enter-view';
 
 const MULTIPLE_SVG =
 	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-down"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>';
@@ -32,6 +33,16 @@ const $annotation = $timeline.select('.figure__annotation');
 let flagW = 0;
 let flagH = 0;
 let wrapLength = 0;
+
+function handleYearEnter(el) {
+	d3.selectAll('.year').classed('is-focus', false);
+	d3.select(el).classed('is-focus', true);
+}
+
+function handleYearExit(el) {
+	d3.selectAll('.year').classed('is-focus', false);
+	d3.select(el.previousSibling).classed('is-focus', true);
+}
 
 function duplicateConnector() {
 	const $a = d3.select(this);
@@ -107,6 +118,7 @@ function resizeTimeline() {
 
 		$timeline.selectAll('li').st('height', flagH);
 		$timeline.selectAll('.flag').st({ width: flagW, height: flagH });
+		$timeline.selectAll('.title').st('line-height', flagH);
 
 		wrapLength = Math.min(sideW * 0.8, MAX_WRAP);
 
@@ -188,6 +200,15 @@ function setupAnnotation() {
 	resizeTimeline();
 }
 
+function setupTrigger() {
+	EnterView({
+		selector: '#timeline .year',
+		enter: handleYearEnter,
+		exit: handleYearExit,
+		offset: 0.5
+	});
+}
+
 function cleanCountry(data) {
 	return data.map(d => ({
 		...d,
@@ -233,6 +254,7 @@ function loadResults() {
 		monthData = fixGaps(response[0].filter(d => +d.year < 2018));
 		setupTimeline();
 		setupAnnotation();
+		setupTrigger();
 		resize();
 	});
 }
