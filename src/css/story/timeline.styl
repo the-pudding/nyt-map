@@ -2,6 +2,7 @@
 	figure
 		min-height 480px
 		position relative
+		user-select none
 	
 	.figure__chart
 		display flex
@@ -29,6 +30,8 @@
 			transform none
 		&:first-child img 
 			border-top-color $bg
+		&:first-child li
+			overflow visible
 		&:last-child img
 			border-bottom-color $bg
 	
@@ -57,12 +60,16 @@
 		line-height 1
 		position relative
 		cursor pointer
+		overflow hidden
 		&:first-child img 
 			border-left-color $bg
 		&:last-child img
 			border-right-color $bg
 
 		&:hover
+			overflow visible
+			.country
+				margin-bottom 137.5%
 			.name
 				visibility visible
 				opacity 1
@@ -74,6 +81,9 @@
 				opacity 1
 				img
 					border-color $fg
+
+	.country
+		position relative
 
 	.month
 		display none
@@ -94,6 +104,7 @@
 		transform scale(1)
 		position relative
 		opacity 0.6
+		background-color $gray-dark
 		img
 			border 1px solid $bg
 
@@ -113,9 +124,18 @@
 		color $bg
 		font-weight 700
 		z-index set-index(top)
-		padding 0.5rem 0
+		padding 0.25rem 0
 		transform translate(-50%, 1rem)
 
+	.layer
+		position absolute
+		top 0.25em
+		right 0.35em
+		opacity 1
+		set-type-size(x-small, false)
+		line-height 1
+		text-shadow 0 0 3px $bg
+		font-weight 700
 
 		
 

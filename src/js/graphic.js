@@ -1,6 +1,9 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
 
+const MULTIPLE_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-down"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>';
+
 const MONTHS = [
 	'Jan',
 	'Feb',
@@ -102,6 +105,7 @@ function resizeTimeline() {
 		flagW = yearW / 12;
 		flagH = flagW / FLAG_RATIO;
 
+		$timeline.selectAll('li').st('height', flagH);
 		$timeline.selectAll('.flag').st({ width: flagW, height: flagH });
 
 		wrapLength = Math.min(sideW * 0.8, MAX_WRAP);
@@ -126,6 +130,35 @@ function resize() {
 	resizeTimeline();
 }
 
+function setupLiContent(datum) {
+	const $li = d3.select(this);
+	if (datum.year === '1900')
+		$li.append('span.month').text(d => MONTHS[+d.month - 1]);
+
+	const $country = $li
+		.selectAll('.country')
+		.data(d => d.country)
+		.enter()
+		.append('div.country');
+
+	$country.append('span.flag').html(d => {
+		const match = countryData.find(c => c.commonLower === d) || {
+			cca2: 'none'
+		};
+		const { cca2 } = match;
+
+		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
+	});
+
+	$country.append('span.name').text(d => {
+		const match = countryData.find(c => c.commonLower === d);
+		return match ? match.common : d;
+	});
+
+	if (datum.country.length > 1)
+		$li.append('span.layer').text(`+${datum.country.length - 1}`);
+}
+
 function setupTimeline() {
 	const nested = d3
 		.nest()
@@ -147,21 +180,7 @@ function setupTimeline() {
 		.enter()
 		.append('li');
 
-	$li.append('span.month').text(d => MONTHS[+d.month - 1]);
-
-	$li.append('span.flag').html(d => {
-		const match = countryData.find(c => c.commonLower === d.country) || {
-			cca2: 'none'
-		};
-		const { cca2 } = match;
-
-		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
-	});
-
-	$li.append('span.name').text(d => {
-		const match = countryData.find(c => c.commonLower === d.country);
-		return match ? match.common : d.country;
-	});
+	$li.each(setupLiContent);
 }
 
 function setupAnnotation() {
@@ -179,18 +198,25 @@ function cleanCountry(data) {
 }
 
 function fixGaps(data) {
-	const [a, b] = d3.extent(data, d => +d.year);
+	const cleanData = data.map(d => ({
+		...d,
+		country: d.country.split(':')
+	}));
+	const [a, b] = d3.extent(cleanData, d => +d.year);
 	const years = d3
 		.range(a, b + 1)
 		.map(year => d3.range(MONTHS.length).map(m => ({ year, month: m + 1 })));
 	const flat = [].concat(...years);
 	const fill = flat.map(d => {
-		const match = data.find(v => +v.year === d.year && +v.month === d.month);
+		const match = cleanData.find(
+			v => +v.year === d.year && +v.month === d.month
+		);
+		if (match && match.count < 5) match.country = ['N/A'];
 		return (
 			match || {
 				year: d.year.toString(),
 				month: d3.format('02')(d.month),
-				country: 'N/A',
+				country: ['N/A'],
 				count: 0
 			}
 		);
