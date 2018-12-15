@@ -1,6 +1,7 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
 import EnterView from 'enter-view';
+import Scrollama from 'scrollama';
 
 const MULTIPLE_SVG =
 	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-down"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>';
@@ -22,6 +23,7 @@ const MONTHS = [
 
 const FLAG_RATIO = 4 / 3;
 const MAX_WRAP = 320;
+const REM = 16;
 
 let countryData = [];
 let monthData = [];
@@ -29,27 +31,73 @@ let monthData = [];
 const $timeline = d3.select('#timeline');
 const $chart = $timeline.select('.figure__chart');
 const $annotation = $timeline.select('.figure__annotation');
+const $headline = $timeline.select('.timeline__headline');
+const $headlineP = $headline.select('p');
+const $headlineList = $headline.select('ul');
 
 let flagW = 0;
 let flagH = 0;
 let wrapLength = 0;
+let numYears = 0;
 
-function handleYearEnter(el) {
-	d3.selectAll('.year').classed('is-focus', false);
-	d3.select(el).classed('is-focus', true);
+const scroller = Scrollama();
+
+function handleYearEnter(index) {
+	const $year = $chart.selectAll('.year').filter((d, i) => i === index);
+	const datum = $year.datum();
+	$headlineP.text(`Headlines from ${datum.key}`);
+	$headlineList.selectAll('li').remove();
+	const data = datum.values.map(d => ({
+		month: MONTHS[+d.month - 1],
+		headline:
+			'This is the most awesome headline of all time and it is not a real one'
+	}));
+	const $li = $headlineList
+		.selectAll('li')
+		.data(data)
+		.enter()
+		.append('li');
+	$li.append('span.month').text(d => d.month);
+	$li.append('span.headline').text(d => d.headline);
 }
 
-function handleYearExit(el) {
-	d3.selectAll('.year').classed('is-focus', false);
-	d3.select(el.previousSibling).classed('is-focus', true);
+function handleStepProgress({ progress }) {
+	const index = Math.floor(progress * numYears);
+	$chart.selectAll('.year').classed('is-focus', (d, i) => i === index);
+	handleYearEnter(index);
 }
 
-function duplicateConnector() {
-	const $a = d3.select(this);
-	const $c = $a.select('.annotation-connector');
-	$c.classed('annotation-connector--bg', true);
-	const html = $c.html();
-	$a.append('g.annotation-connector.annotation-connector--fg').html(html);
+function handleStepEnter() {
+	$chart.select('.timeline__headline').classed('is-visible', true);
+}
+
+function handleStepExit() {
+	$chart.select('.timeline__headline').classed('is-visible', false);
+}
+
+function handleAnnoEnter({ data }) {
+	const $annoNoteRect = d3.select(this);
+	const $anno = $annoNoteRect
+		.parent()
+		.parent()
+		.parent();
+	$anno.select('.annotation-connector').st('opacity', 1);
+	console.log(data.year, data.month);
+	$chart
+		.select(`[data-id="${data.year}-${data.month}"]`)
+		.classed('is-focus', true);
+}
+
+function handleAnnoExit({ data }) {
+	const $annoNoteRect = d3.select(this);
+	const $anno = $annoNoteRect
+		.parent()
+		.parent()
+		.parent();
+	$anno.select('.annotation-connector').st('opacity', 0);
+	$chart
+		.select(`[data-id="${data.year}-${data.month}"]`)
+		.classed('is-focus', false);
 }
 
 function createAnnotation(data) {
@@ -73,8 +121,8 @@ function createAnnotation(data) {
 			wrap: wrapLength,
 			bgPadding: { top: 5, left: 5, right: 5, bottom: 5 }
 		},
-		data: { yearOff: d.year - 1900, month: d.month },
-		dx: (12 - d.month) * flagW + flagW,
+		data: { year: d.year, yearOff: +d.year - 1900, month: d.month },
+		dx: (12 - +d.month) * flagW + flagW,
 		dy: flagH * 3,
 		connector: { points: 1 }
 	}));
@@ -89,19 +137,10 @@ function createAnnotation(data) {
 
 	$anno.call(makeAnnotations);
 
-	$anno.selectAll('.annotation').each(duplicateConnector);
-	// $anno
-	// 	.selectAll('.annotation-note-title')
-	// 	.selectAll('tspan')
-	// 	.filter((d, i) => i !== 0)
-	// 	.at('dy', '1.4em');
-
-	// $anno
-	// 	.transition()
-	// 	.duration(dur)
-	// 	.delay(delay)
-	// 	.ease(EASE)
-	// 	.st('opacity', 1);
+	$anno
+		.selectAll('.annotation-note-bg')
+		.on('mouseenter', handleAnnoEnter)
+		.on('mouseout', handleAnnoExit);
 }
 
 function resizeTimeline() {
@@ -109,9 +148,12 @@ function resizeTimeline() {
 	if ($year.size()) {
 		const timelineW = $timeline.node().offsetWidth;
 		const yearW = $year.node().offsetWidth;
+
+		const mobile = timelineW < REM * 70;
 		const sideW = (timelineW - yearW) / 2;
-		const annotationW = timelineW - sideW;
-		$annotation.st('width', annotationW);
+		const annotationW = mobile ? timelineW - sideW : timelineW - 5 * REM;
+
+		$annotation.st('width', annotationW).st('left', mobile ? 5 * REM : sideW);
 
 		flagW = yearW / 12;
 		flagH = flagW / FLAG_RATIO;
@@ -119,8 +161,9 @@ function resizeTimeline() {
 		$timeline.selectAll('li').st('height', flagH);
 		$timeline.selectAll('.flag').st({ width: flagW, height: flagH });
 		$timeline.selectAll('.title').st('line-height', flagH);
+		$headlineList.st('max-width', sideW - flagW * 1.25);
 
-		wrapLength = Math.min(sideW * 0.8, MAX_WRAP);
+		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
 		const test = d3
 			.range(100)
@@ -128,8 +171,8 @@ function resizeTimeline() {
 			.join(' ');
 		const annoData = [
 			{
-				year: 1907,
-				month: 6,
+				year: '1907',
+				month: '06',
 				label: test
 			}
 		];
@@ -191,8 +234,10 @@ function setupTimeline() {
 		.selectAll('li')
 		.data(d => d.values)
 		.enter()
-		.append('li');
+		.append('li')
+		.at('data-id', d => `${d.year}-${d.month}`);
 
+	numYears = $year.size();
 	$li.each(setupLiContent);
 }
 
@@ -201,12 +246,15 @@ function setupAnnotation() {
 }
 
 function setupTrigger() {
-	EnterView({
-		selector: '#timeline .year',
-		enter: handleYearEnter,
-		exit: handleYearExit,
-		offset: 0.5
-	});
+	scroller
+		.setup({
+			step: 'figure',
+			progress: true
+		})
+		.onStepEnter(handleStepEnter)
+		.onStepExit(handleStepExit)
+		.onStepProgress(handleStepProgress);
+	scroller.resize();
 }
 
 function cleanCountry(data) {

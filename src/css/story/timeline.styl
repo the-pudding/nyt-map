@@ -3,6 +3,42 @@
 		min-height 480px
 		position relative
 		user-select none
+
+		ul
+			display flex
+			justify-content center
+			margin 0 auto
+		
+		li
+			display flex
+			flex-direction column
+			text-align center
+			line-height 1
+			position relative
+			cursor pointer
+			overflow hidden
+			&:first-child img 
+				border-left-color $bg
+			&:last-child img
+				border-right-color $bg
+
+			&:hover, &.is-focus
+				overflow visible
+				.country
+					margin-bottom 110%
+				.country.is-uk
+					margin-bottom 140%
+				.name
+					visibility visible
+					opacity 1
+				.flag
+					// box-shadow 0px 0px 8px $fg
+					transform scale(1.5)
+					z-index set-index(top)
+					pointer-events none
+					opacity 1
+					img
+						border-color $fg
 	
 	.figure__chart
 		display flex
@@ -13,21 +49,31 @@
 	.figure__annotation
 		position absolute
 		top 0
-		right 0
 		width 100%
 		height 100%
 		pointer-events none
 		z-index set-index(top)
+		display none
+		+mq('bp-5')
+			display block
 	
 	.year
 		position relative
 		margin 0 auto
 		font-weight 700
 		width 85%
+		min-width 280px
 		max-width 40rem
 		transform translateX(1rem)
 		+mq('bp-5')
+			margin 0
+			margin-left 5rem
+			width 67%
+			transform translateX(0)
+		+mq('bp-7')
 			transform none
+			margin 0 auto
+			
 		&:first-child img 
 			border-top-color $bg
 		&:first-child li
@@ -37,20 +83,16 @@
 
 		&.is-focus
 			.title
-				font-size 22px
 				color $fg
+				+mq('bp-5')
+					font-size 22px
+				
 			.flag
 				opacity 1
 			img
 				border-top-color $fg
 				border-bottom-color $fg
 				// border-color $fg
-
-
-
-	
-	.year:first-of-type li .month
-		display block
 
 	.title
 		text-align center
@@ -62,57 +104,8 @@
 		font-size 12px
 		color $gray-light
 
-	ul
-		display flex
-		justify-content center
-		margin 0 auto
-	
-	li
-		display flex
-		flex-direction column
-		text-align center
-		line-height 1
-		position relative
-		cursor pointer
-		overflow hidden
-		&:first-child img 
-			border-left-color $bg
-		&:last-child img
-			border-right-color $bg
-
-		&:hover
-			overflow visible
-			.country
-				margin-bottom 110%
-			.country.is-uk
-				margin-bottom 140%
-			.name
-				visibility visible
-				opacity 1
-			.flag
-				// box-shadow 0px 0px 8px $fg
-				transform scale(1.5)
-				z-index set-index(top)
-				pointer-events none
-				opacity 1
-				img
-					border-color $fg
-
 	.country
 		position relative
-
-	.month
-		display none
-		text-transform uppercase
-		margin-bottom 0.5rem
-		position absolute
-		top 0
-		left 0
-		width 100%
-		transform translateY(-200%)
-		set-type-size(xxx-small, false)
-		+mq('bp-3')
-			set-type-size(xx-small, false)
 	
 	.flag
 		display inline-block
@@ -153,14 +146,61 @@
 		text-shadow 0 0 3px $bg
 		font-weight 700
 
+	.figure__chart .month
+		display none
+		text-transform uppercase
+		margin-bottom 0.5rem
+		position absolute
+		top 0
+		left 0
+		width 100%
+		transform translateY(-200%)
+		set-type-size(xxx-small, false)
+		+mq('bp-3')
+			set-type-size(xx-small, false)
+
+	.year:first-of-type li .month
+		display block
+
 		
 
 	.timeline__headline
-		top 5rem
-		left 1rem
+		position fixed
+		top 10rem
+		left 0
+		transition opacity 250ms ease-in-out
+		display none
+		+mq('bp-8')
+			display block
 		p
 			margin 0
 			font-weight 700
+			padding 0 1rem
+			margin-bottom 0.5rem
+
+		ul
+			padding 0 1rem
+		
+		li
+			margin-bottom 0.5em
+			set-type-size(small)
+			+mq('bp-8')
+				set-type-size(root)
+		
+		span.month
+			margin-right 0.25em
+			font-weight 700
+			text-transform uppercase
+			background-color $fg
+			color $bg
+			padding 0 0.25em
+			set-type-size(xxx-small)
+			+mq('bp-8')
+				set-type-size(x-small)
+
+		&.is-visible
+			opacity 1
+
 	
 	.timeline__annotation
 		top 5rem
@@ -173,3 +213,5 @@
 			text-align right
 			font-weight 700
 			set-type-size(small, true)
+	
+	

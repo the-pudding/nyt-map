@@ -1,19 +1,17 @@
 #timeline .g-annotation
+	.annotation-note-bg
+		cursor pointer
+		pointer-events auto
 	text
 		fill $fg
 		font-weight 600
 		set-type-size(small)
+	
 	.note-line
 		display none
-	.annotation-connector--bg
-		// .connector
-		// 	stroke $bg
-		// 	stroke-width 3px
-		// .connector-end
-		// 	stroke-width 2px
-		// 	fill $bg
-		// 	stroke $bg
-	.annotation-connector--fg
+	
+	.annotation-connector
+		opacity 0
 		.connector
 			stroke $fg
 			stroke-width 2px
@@ -21,3 +19,6 @@
 			stroke-width 2px
 			fill $fg
 			stroke $fg
+		&.is-visible
+			opacity 1
+		
