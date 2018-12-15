@@ -151,7 +151,7 @@ function resizeTimeline() {
 
 		const mobile = timelineW < REM * 70;
 		const sideW = (timelineW - yearW) / 2;
-		const annotationW = mobile ? timelineW - sideW : timelineW - 5 * REM;
+		const annotationW = mobile ? timelineW - 5 * REM : timelineW - sideW;
 
 		$annotation.st('width', annotationW).st('left', mobile ? 5 * REM : sideW);
 
