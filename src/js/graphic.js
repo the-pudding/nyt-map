@@ -34,6 +34,7 @@ const $annotation = $timeline.select('.figure__annotation');
 const $headline = $timeline.select('.timeline__headline');
 const $headlineP = $headline.select('p');
 const $headlineList = $headline.select('ul');
+const $toggle = $timeline.select('.timeline__toggle');
 
 let flagW = 0;
 let flagH = 0;
@@ -100,6 +101,12 @@ function handleAnnoExit({ data }) {
 		.classed('is-focus', false);
 }
 
+function handleToggle() {
+	const show = $headline.classed('is-show');
+	$headline.classed('is-show', !show);
+	$toggle.text(show ? 'Show headlines' : 'Hide headlines');
+}
+
 function createAnnotation(data) {
 	$annotation.select('.g-annotation').remove();
 	const $anno = $annotation.append('g.g-annotation');
@@ -164,14 +171,14 @@ function resize() {
 
 		const headW = Math.min(sideW - flagW * 1.25, 480);
 		const headX = Math.max(0, sideW - headW - 5 * REM);
-		const headH = window.innerHeight - 5 * REM;
+		const headH = window.innerHeight - (mobile ? 3 : 5) * REM;
 
 		$headline
-			.st('width', headW)
-			.st('left', headX)
+			.st('width', mobile ? 280 : headW)
+			.st('left', mobile ? 0 : headX)
 			.st('height', headH);
 
-		$chart.st('margin-top', -headH);
+		$chart.st('margin-top', mobile ? 0 : -headH);
 
 		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
@@ -261,6 +268,10 @@ function setupTrigger() {
 	scroller.resize();
 }
 
+function setupToggle() {
+	$toggle.on('click', handleToggle);
+}
+
 function cleanCountry(data) {
 	return data.map(d => ({
 		...d,
@@ -306,6 +317,7 @@ function loadResults() {
 		monthData = fixGaps(response[0].filter(d => +d.year));
 		setupTimeline();
 		setupTrigger();
+		setupToggle();
 		handleStepProgress({ progress: 0 });
 		resize();
 	});

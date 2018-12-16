@@ -166,18 +166,31 @@
 		
 
 	.timeline__headline
-		top 5rem
 		left 0
 		transition opacity 250ms ease-in-out
-		display none
 		max-width 40rem
+		position fixed
+		bottom 0
+		background-color $bg
+		z-index set-index(top)
+		transform translate3d(-100%, 0, 0)
+		transition transform 250ms ease-in-out
+		border-right 1px solid $fg
+
+		&.is-show 
+			transform translate3d(0, 0, 0)
 		+mq('bp-8')
 			display block
+			top 5rem
+			bottom auto
+			border none
+			position sticky
+			transform translate3d(0, 0, 0)
 		p
 			margin 0
 			font-weight 700
-			padding 0 1rem
-			margin-bottom 0.5rem
+			padding 1rem
+			padding-bottom 0.5rem
 			text-transform uppercase
 			letter-spacing 0.05em
 
@@ -218,3 +231,20 @@
 			set-type-size(small, true)
 	
 	
+	.timeline__toggle
+		position fixed
+		bottom 1rem
+		left 0
+		z-index set-index(top)
+		background-color $fg
+		padding 0.5rem
+		set-type-size(x-small, false)
+		line-height 1
+		text-transform uppercase
+		letter-spacing 0.05em
+		font-weight 700
+		color $bg
+		cursor pointer
+		width 9rem
+		+mq('bp-8')
+			display none
