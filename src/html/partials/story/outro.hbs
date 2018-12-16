@@ -1,5 +1,15 @@
 <section id='outro'>
-	{{#each doc.method}}
-	<p>{{{value}}}</p>
-	{{/each}}
+	<div class='outro__tease'>
+		{{#each doc.outro}}
+		<p>{{{value}}}</p>
+		{{/each}}
+	</div>
+	
+	<div class='outro__method'>
+		<p class='tk-national'><strong>Data and Method</strong></p>
+		{{#each doc.method}}
+		<p class='tk-national'>{{{value}}}</p>
+		{{/each}}
+	</div>
+	
 </section>

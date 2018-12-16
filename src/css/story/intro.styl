@@ -3,6 +3,7 @@
 	padding 4rem 1rem 1.5rem 1rem
 
 	&__hed
+		display none
 		max-width $column-width
 		margin 0 auto
 		padding-top 1rem
@@ -18,17 +19,19 @@
 			
 	
 	&__byline
-		max-width $column-width
+		max-width 70rem
 		margin 0 auto
-		padding-top 3rem
-		// text-align center
-		set-type-size('small', true)
+		padding 1rem
+		padding-top 2rem
+		padding-bottom 0
+		set-type-size('root', true)
 		font-weight 500
 		display flex
-		justify-content space-between
-		border-bottom 1px dashed $fg
+		flex-direction column
 		a
 			border none
+			max-width 12rem
+
 		
 	&__dek
 		max-width $column-width
@@ -41,11 +44,17 @@
 			font-weight 700
 
 	&__prelude
-		max-width $column-width
+		max-width 70rem
+		padding 0 1rem
 		margin 0 auto
+		margin-bottom 3rem
 		p
 			text-align justify
-			font-size 20px
+			set-type-size('medium')
+			+mq('bp-4')
+				set-type-size('large')
+			+mq('bp-6')
+				set-type-size('x-large')
 		strong
 			font-family $sans
 			font-weight 900

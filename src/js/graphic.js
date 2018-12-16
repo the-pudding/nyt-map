@@ -299,7 +299,7 @@ function loadResults() {
 	const filepaths = files.map(d => `assets/data/result--${d}.csv`);
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
-		monthData = fixGaps(response[0].filter(d => +d.year < 2018));
+		monthData = fixGaps(response[0].filter(d => +d.year));
 		setupTimeline();
 		setupAnnotation();
 		setupTrigger();
