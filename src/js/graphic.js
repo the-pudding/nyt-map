@@ -1,6 +1,6 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
-import EnterView from 'enter-view';
+import Stickyfill from 'stickyfilljs';
 import Scrollama from 'scrollama';
 
 const MULTIPLE_SVG =
@@ -62,7 +62,7 @@ function handleYearEnter(index) {
 }
 
 function handleStepProgress({ progress }) {
-	const index = Math.floor(progress * numYears);
+	const index = Math.min(numYears - 1, Math.floor(progress * numYears));
 	$chart.selectAll('.year').classed('is-focus', (d, i) => i === index);
 	handleYearEnter(index);
 }
@@ -143,7 +143,7 @@ function createAnnotation(data) {
 		.on('mouseout', handleAnnoExit);
 }
 
-function resizeTimeline() {
+function resize() {
 	const $year = $timeline.select('.year');
 	if ($year.size()) {
 		const timelineW = $timeline.node().offsetWidth;
@@ -161,7 +161,17 @@ function resizeTimeline() {
 		$timeline.selectAll('li').st('height', flagH);
 		$timeline.selectAll('.flag').st({ width: flagW, height: flagH });
 		$timeline.selectAll('.title').st('line-height', flagH);
-		$headlineList.st('max-width', sideW - flagW * 1.25);
+
+		const headW = Math.min(sideW - flagW * 1.25, 480);
+		const headX = Math.max(0, sideW - headW - 5 * REM);
+		const headH = window.innerHeight - 5 * REM;
+
+		$headline
+			.st('width', headW)
+			.st('left', headX)
+			.st('height', headH);
+
+		$chart.st('margin-top', -headH);
 
 		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
@@ -179,10 +189,8 @@ function resizeTimeline() {
 
 		createAnnotation(annoData);
 	}
-}
 
-function resize() {
-	resizeTimeline();
+	scroller.resize();
 }
 
 function setupLiContent(datum) {
@@ -241,10 +249,6 @@ function setupTimeline() {
 	$li.each(setupLiContent);
 }
 
-function setupAnnotation() {
-	resizeTimeline();
-}
-
 function setupTrigger() {
 	scroller
 		.setup({
@@ -301,13 +305,14 @@ function loadResults() {
 		if (err) console.log(err);
 		monthData = fixGaps(response[0].filter(d => +d.year));
 		setupTimeline();
-		setupAnnotation();
 		setupTrigger();
+		handleStepProgress({ progress: 0 });
 		resize();
 	});
 }
 
 function init() {
+	Stickyfill.add(d3.selectAll('.sticky').nodes());
 	const files = ['countries.csv'];
 	const filepaths = files.map(d => `assets/data/${d}`);
 	d3.loadData(...filepaths, (err, response) => {

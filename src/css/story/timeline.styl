@@ -83,7 +83,7 @@
 
 		&.is-focus
 			.title
-				color $fg
+				opacity 1
 				+mq('bp-5')
 					font-size 22px
 				
@@ -101,7 +101,8 @@
 		transform translate(-1rem, 4px)
 		margin 0
 		font-size 12px
-		color $gray-light
+		color $primary
+		opacity 0.8
 
 	.country
 		position relative
@@ -112,7 +113,7 @@
 		transform scale(1)
 		position relative
 		opacity 0.5
-		background-color $gray-dark
+		background-color $bg
 		img
 			border 1px solid $bg
 
@@ -120,7 +121,7 @@
 		line-height 1
 		set-type-size(root, false)
 		letter-spacing 0.025em
-		color $gray-dark
+		color $bg
 		font-weight 700
 		position absolute
 		top 100%
@@ -154,6 +155,7 @@
 		left 0
 		width 100%
 		transform translateY(-200%)
+		opacity 0.8
 		set-type-size(xxx-small, false)
 		+mq('bp-3')
 			set-type-size(xx-small, false)
@@ -164,18 +166,20 @@
 		
 
 	.timeline__headline
-		position fixed
-		top 10rem
+		top 5rem
 		left 0
 		transition opacity 250ms ease-in-out
 		display none
+		max-width 40rem
 		+mq('bp-8')
-			// display block
+			display block
 		p
 			margin 0
 			font-weight 700
 			padding 0 1rem
 			margin-bottom 0.5rem
+			text-transform uppercase
+			letter-spacing 0.05em
 
 		ul
 			padding 0 1rem
