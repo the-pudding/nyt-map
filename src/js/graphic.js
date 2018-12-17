@@ -34,7 +34,7 @@ const $timeline = d3.select('#timeline');
 const $chart = $timeline.select('.figure__chart');
 const $annotation = $timeline.select('.figure__annotation');
 const $headline = $timeline.select('.timeline__headline');
-const $headlineP = $headline.select('p');
+const $headlineTitle = $headline.select('h3');
 const $headlineList = $headline.select('ul');
 const $toggle = $timeline.select('.timeline__toggle');
 
@@ -81,9 +81,12 @@ function getHeadline(d) {
 function handleYearEnter(index) {
 	const $year = $chart.selectAll('.year').filter((d, i) => i === index);
 	const datum = $year.datum();
-	$headlineP.text(`Headlines from ${datum.key}`);
+	$headlineTitle.text(`Headlines from ${datum.key}`);
 	$headlineList.selectAll('li').remove();
-	const data = datum.values
+	const { values } = datum;
+	values.sort((a, b) => d3.descending(a.count, b.count));
+	const data = values
+		.slice(0, 3)
 		.map(d => ({
 			month: MONTHS[+d.month - 1],
 			headline: getHeadline(d)
@@ -189,7 +192,7 @@ function createAnnotation(data) {
 }
 
 function resize() {
-	charCount = Math.floor(window.innerHeight * 0.075);
+	charCount = Math.floor(window.innerHeight * 0.3);
 
 	const $year = $timeline.select('.year');
 	if ($year.size()) {
@@ -327,6 +330,7 @@ function cleanCountry(data) {
 function fixGaps(data) {
 	const cleanData = data.map(d => ({
 		...d,
+		count: +d.count,
 		country: d.country.split(':')
 	}));
 	const [a, b] = d3.extent(cleanData, d => +d.year);

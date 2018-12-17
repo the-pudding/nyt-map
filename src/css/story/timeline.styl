@@ -187,13 +187,23 @@
 			border none
 			position sticky
 			transform translate3d(0, 0, 0)
-		p
+		
+		h3
 			margin 0
 			font-weight 700
-			padding 1rem
-			padding-bottom 0.5rem
+			padding 0 1rem
 			text-transform uppercase
 			letter-spacing 0.05em
+			set-type-size(medium)
+			line-height 1
+		
+		p
+			margin 0
+			padding 0.5rem 1rem
+			// padding-bottom 0.5rem
+			// text-transform uppercase
+			// letter-spacing 0.05em
+			set-type-size(small, true)
 
 		ul
 			padding 0 1rem
@@ -201,12 +211,13 @@
 		li
 			margin-bottom 0.5em
 			set-type-size(small, false)
-			line-height 1.2
+			line-height 1.35
 			+mq('bp-8')
 				set-type-size(root, false)
 
 			strong
-				// font-weight 500
+				border-bottom 2px solid $secondary
+				font-weight 500
 		
 		span.month
 			margin-right 0.25em
