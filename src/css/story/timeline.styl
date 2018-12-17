@@ -101,7 +101,7 @@
 		transform translate(-1rem, 4px)
 		margin 0
 		font-size 12px
-		color $primary
+		color $fg
 		opacity 0.8
 
 	.country
@@ -177,11 +177,12 @@
 		transition transform 250ms ease-in-out
 		border-right 1px solid $fg
 
+
 		&.is-show 
 			transform translate3d(0, 0, 0)
 		+mq('bp-8')
 			display block
-			top 5rem
+			top 4rem
 			bottom auto
 			border none
 			position sticky
@@ -199,9 +200,13 @@
 		
 		li
 			margin-bottom 0.5em
-			set-type-size(small)
+			set-type-size(small, false)
+			line-height 1.2
 			+mq('bp-8')
-				set-type-size(root)
+				set-type-size(root, false)
+
+			strong
+				// font-weight 500
 		
 		span.month
 			margin-right 0.25em

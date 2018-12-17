@@ -2,6 +2,7 @@
 import * as Annotate from 'd3-svg-annotation';
 import Stickyfill from 'stickyfilljs';
 import Scrollama from 'scrollama';
+import Truncate from './utils/truncate';
 
 const MULTIPLE_SVG =
 	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-down"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>';
@@ -27,6 +28,7 @@ const REM = 16;
 
 let countryData = [];
 let monthData = [];
+let headlineData = [];
 
 const $timeline = d3.select('#timeline');
 const $chart = $timeline.select('.figure__chart');
@@ -40,26 +42,62 @@ let flagW = 0;
 let flagH = 0;
 let wrapLength = 0;
 let numYears = 0;
+let headlineHeight = 0;
+let charCount = 0;
 
 const scroller = Scrollama();
+
+function getHeadline(d) {
+	const match = headlineData.find(
+		h => h.month === d.month && h.year === d.year
+	);
+	if (!match) return 'N/A';
+
+	const { headline, common, demonym, city } = match;
+	const headlineS = Truncate({
+		text: headline,
+		chars: charCount,
+		clean: true,
+		ellipses: true
+	});
+	const vals = [
+		...common.split(':'),
+		...demonym.split(':'),
+		...city.split(':')
+	];
+	const first = vals.find(v => v.includes(d.country[0]));
+	if (!first) return 'N/A';
+
+	const firstWord = first.split('(')[1].replace(')', '');
+	const start = headline.toLowerCase().indexOf(firstWord);
+	const end = start + firstWord.length;
+
+	const before = headlineS.substring(0, start);
+	const between = headlineS.substring(start, end);
+	const after = headlineS.substring(end, headlineS.length);
+	return `${before}<strong>${between}</strong>${after}`;
+}
 
 function handleYearEnter(index) {
 	const $year = $chart.selectAll('.year').filter((d, i) => i === index);
 	const datum = $year.datum();
 	$headlineP.text(`Headlines from ${datum.key}`);
 	$headlineList.selectAll('li').remove();
-	const data = datum.values.map(d => ({
-		month: MONTHS[+d.month - 1],
-		headline:
-			'This is the most awesome headline of all time and it is not a real one'
-	}));
+	const data = datum.values
+		.map(d => ({
+			month: MONTHS[+d.month - 1],
+			headline: getHeadline(d)
+		}))
+		.filter(d => d.headline);
+
 	const $li = $headlineList
 		.selectAll('li')
 		.data(data)
 		.enter()
 		.append('li');
+
 	$li.append('span.month').text(d => d.month);
-	$li.append('span.headline').text(d => d.headline);
+	$li.append('span.headline').html(d => d.headline);
 }
 
 function handleStepProgress({ progress }) {
@@ -151,6 +189,8 @@ function createAnnotation(data) {
 }
 
 function resize() {
+	charCount = Math.floor(window.innerHeight * 0.075);
+
 	const $year = $timeline.select('.year');
 	if ($year.size()) {
 		const timelineW = $timeline.node().offsetWidth;
@@ -177,6 +217,8 @@ function resize() {
 			.st('width', mobile ? 280 : headW)
 			.st('left', mobile ? 0 : headX)
 			.st('height', headH);
+
+		headlineHeight = Math.floor(headH / 12);
 
 		$chart.st('margin-top', mobile ? 0 : -headH);
 
@@ -309,17 +351,26 @@ function fixGaps(data) {
 	return fill;
 }
 
-function loadResults() {
-	const files = ['month'];
-	const filepaths = files.map(d => `assets/data/result--${d}.csv`);
-	d3.loadData(...filepaths, (err, response) => {
+function loadHeadlines() {
+	d3.loadData('assets/data/headlines.csv', (err, response) => {
 		if (err) console.log(err);
-		monthData = fixGaps(response[0].filter(d => +d.year));
-		setupTimeline();
-		setupTrigger();
-		setupToggle();
+		headlineData = response[0];
 		handleStepProgress({ progress: 0 });
-		resize();
+	});
+}
+
+function loadResults() {
+	return new Promise(resolve => {
+		d3.loadData('assets/data/result--month.csv', (err, response) => {
+			if (err) console.log(err);
+			monthData = fixGaps(response[0].filter(d => +d.year));
+			setupTimeline();
+			setupTrigger();
+			setupToggle();
+			handleStepProgress({ progress: 0 });
+			resize();
+			resolve();
+		});
 	});
 }
 
@@ -330,7 +381,7 @@ function init() {
 	d3.loadData(...filepaths, (err, response) => {
 		if (err) console.log(err);
 		countryData = cleanCountry(response[0]);
-		loadResults();
+		loadResults().then(loadHeadlines);
 	});
 }
 
