@@ -3,12 +3,12 @@
   "description": "The countries that have preoccupied Americans since 1900.",
   "url": "https://pudding.cool/2018/12/countries/",
   "keywords": "tk",
-  "imgFacebook": "https://pudding.cool/2018/12/countries/assets/social/social-facebook.jpg",
-  "imgTwitter": "https://pudding.cool/2018/12/countries/assets/social/social-twitter.jpg",
+  "imgFacebook": "https://pudding.cool/2018/12/countries/assets/social/social-facebook.png",
+  "imgTwitter": "https://pudding.cool/2018/12/countries/assets/social/social-twitter.png",
   "author": {
     "name": "Russell Goldenberg",
     "url": "https://pudding.cool/author/russell-goldenberg",
     "twitterHandle": "@codenberg"
   },
-  "analytics": ""
+  "analytics": "UA-90567923-1"
 }
