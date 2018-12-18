@@ -25,6 +25,7 @@ const REM = 16;
 let countryData = [];
 let monthData = [];
 let headlineData = [];
+let headlinePrev = [];
 
 const $timeline = d3.select('#timeline');
 const $chart = $timeline.select('.figure__chart');
@@ -53,9 +54,13 @@ function getHeadline(d) {
 	const match = headlineData.find(
 		h => h.month === d.month && h.year === d.year
 	);
+	const match2 = headlinePrev.find(
+		h => h.month === d.month && h.year === d.year
+	);
 	if (!match) return 'N/A';
 
 	const { headline, common, demonym, city, web_url } = match;
+
 	const headlineS = Truncate({
 		text: headline,
 		chars: charCount,
@@ -79,7 +84,8 @@ function getHeadline(d) {
 	const after = headlineS.substring(end, headlineS.length);
 	return {
 		headline: `${before}<strong>${between}</strong>${after}`,
-		web_url
+		web_url,
+		fresh: web_url !== match2.web_url
 	};
 }
 
@@ -109,6 +115,7 @@ function handleYearEnter() {
 
 	// TODO delete
 	$li.on('click', d => console.log(d.web_url));
+	$li.classed('is-fresh', d => d.fresh);
 
 	$headline.classed('is-visible', true);
 }
@@ -374,11 +381,16 @@ function fixGaps(data) {
 }
 
 function loadHeadlines() {
-	d3.loadData('assets/data/headlines.csv', (err, response) => {
-		if (err) console.log(err);
-		headlineData = response[0];
-		handleStepProgress();
-	});
+	d3.loadData(
+		'assets/data/headlines.csv',
+		'assets/data/headlines-prev.csv',
+		(err, response) => {
+			if (err) console.log(err);
+			headlineData = response[0];
+			headlinePrev = response[1];
+			handleStepProgress();
+		}
+	);
 }
 
 function loadResults() {
