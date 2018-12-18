@@ -98,11 +98,13 @@
 		position absolute
 		bottom 0
 		right 100%
-		transform translate(-1rem, 4px)
 		margin 0
 		font-size 12px
 		color $fg
 		opacity 0.8
+		transform translate(-0.5rem, 1px)
+		+mq('bp-8')
+			transform translate(-1rem, 4px)
 
 	.country
 		position relative
@@ -112,8 +114,10 @@
 		line-height 1
 		transform scale(1)
 		position relative
-		opacity 0.5
 		background-color $bg
+		opacity 1
+		+mq('bp-8')
+			opacity 0.65
 		img
 			border 1px solid $bg
 
@@ -167,16 +171,16 @@
 
 	.timeline__headline
 		left 0
+		top 0
 		transition opacity 250ms ease-in-out
 		max-width 40rem
 		position fixed
-		bottom 0
 		background-color $bg
 		z-index set-index(top)
 		transform translate3d(-100%, 0, 0)
 		transition transform 250ms ease-in-out
 		border-right 1px solid $fg
-		padding 0 1rem
+		padding 1rem
 		visibility hidden
 
 		&.is-visible
@@ -184,6 +188,7 @@
 
 		&.is-show 
 			transform translate3d(0, 0, 0)
+		
 		+mq('bp-8')
 			display block
 			top 4rem
@@ -191,6 +196,7 @@
 			border none
 			position sticky
 			transform translate3d(0, 0, 0)
+			padding 0 1rem
 		
 		h3
 			margin 0
@@ -255,8 +261,11 @@
 		position fixed
 		bottom 1rem
 		left 0
-		z-index set-index(top)
+		z-index set-index(overlay)
 		background-color $fg
+		border-top 1px solid $bg
+		border-right 1px solid $bg
+		border-bottom 1px solid $bg
 		padding 0.5rem
 		set-type-size(x-small, false)
 		line-height 1

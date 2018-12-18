@@ -234,7 +234,7 @@ function resize() {
 		$headline
 			.st('width', mobile ? 280 : headW)
 			.st('left', mobile ? 0 : headX)
-			.st('height', headH);
+			.st('height', mobile ? window.innerHeight : headH);
 
 		headlineHeight = Math.floor(headH / 12);
 		halfHeadH = headH / 2;
@@ -242,7 +242,7 @@ function resize() {
 			.st('margin-top', mobile ? 0 : -headH)
 			.st('padding-bottom', mobile ? 0 : headH / 2);
 
-		$outro.st('margin-top', -headH / 2);
+		$outro.st('margin-top', mobile ? 0 : -headH / 2);
 
 		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
