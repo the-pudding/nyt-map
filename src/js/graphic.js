@@ -60,7 +60,7 @@ function getHeadline(d) {
 	if (!match) return 'N/A';
 
 	const { headline, common, demonym, city, web_url } = match;
-
+	
 	const headlineS = Truncate({
 		text: headline,
 		chars: charCount,
@@ -115,7 +115,7 @@ function handleYearEnter() {
 
 	// TODO delete
 	$li.on('click', d => console.log(d.web_url));
-	$li.classed('is-fresh', d => d.fresh);
+	$li.classed('is-fresh', d => d.fresh)
 
 	$headline.classed('is-visible', true);
 }
