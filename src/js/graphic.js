@@ -53,7 +53,7 @@ function getHeadline(d) {
 	);
 	if (!match) return 'N/A';
 
-	const { headline, common, demonym, city } = match;
+	const { headline, common, demonym, city, web_url } = match;
 	const headlineS = Truncate({
 		text: headline,
 		chars: charCount,
@@ -75,7 +75,10 @@ function getHeadline(d) {
 	const before = headlineS.substring(0, start);
 	const between = headlineS.substring(start, end);
 	const after = headlineS.substring(end, headlineS.length);
-	return `${before}<strong>${between}</strong>${after}`;
+	return {
+		headline: `${before}<strong>${between}</strong>${after}`,
+		web_url
+	};
 }
 
 function handleYearEnter(index) {
@@ -89,7 +92,7 @@ function handleYearEnter(index) {
 		.slice(0, 3)
 		.map(d => ({
 			month: MONTHS[+d.month - 1],
-			headline: getHeadline(d)
+			...getHeadline(d)
 		}))
 		.filter(d => d.headline);
 
@@ -101,6 +104,8 @@ function handleYearEnter(index) {
 
 	$li.append('span.month').text(d => d.month);
 	$li.append('span.headline').html(d => d.headline);
+
+	$li.on('click', d => console.log(d.web_url));
 }
 
 function handleStepProgress({ progress }) {
