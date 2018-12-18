@@ -1,11 +1,7 @@
 /* global d3 */
 import * as Annotate from 'd3-svg-annotation';
 import Stickyfill from 'stickyfilljs';
-import Scrollama from 'scrollama';
 import Truncate from './utils/truncate';
-
-const MULTIPLE_SVG =
-	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-down"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>';
 
 const MONTHS = [
 	'Jan',
@@ -37,6 +33,8 @@ const $headline = $timeline.select('.timeline__headline');
 const $headlineTitle = $headline.select('h3');
 const $headlineList = $headline.select('ul');
 const $toggle = $timeline.select('.timeline__toggle');
+const $outro = d3.select('#outro');
+const $chartEl = $chart.node();
 
 let flagW = 0;
 let flagH = 0;
@@ -44,8 +42,12 @@ let wrapLength = 0;
 let numYears = 0;
 let headlineHeight = 0;
 let charCount = 0;
+let ticking = false;
+let halfH = 0;
+let halfHeadH = 0;
+let currentIndex = 0;
 
-const scroller = Scrollama();
+// const scroller = Scrollama();
 
 function getHeadline(d) {
 	const match = headlineData.find(
@@ -81,8 +83,8 @@ function getHeadline(d) {
 	};
 }
 
-function handleYearEnter(index) {
-	const $year = $chart.selectAll('.year').filter((d, i) => i === index);
+function handleYearEnter() {
+	const $year = $chart.selectAll('.year').filter((d, i) => i === currentIndex);
 	const datum = $year.datum();
 	$headlineTitle.text(`Headlines from ${datum.key}`);
 	$headlineList.selectAll('li').remove();
@@ -105,21 +107,15 @@ function handleYearEnter(index) {
 	$li.append('span.month').text(d => d.month);
 	$li.append('span.headline').html(d => d.headline);
 
+	// TODO delete
 	$li.on('click', d => console.log(d.web_url));
+
+	$headline.classed('is-visible', true);
 }
 
-function handleStepProgress({ progress }) {
-	const index = Math.min(numYears - 1, Math.floor(progress * numYears));
-	$chart.selectAll('.year').classed('is-focus', (d, i) => i === index);
-	handleYearEnter(index);
-}
-
-function handleStepEnter() {
-	$chart.select('.timeline__headline').classed('is-visible', true);
-}
-
-function handleStepExit() {
-	$chart.select('.timeline__headline').classed('is-visible', false);
+function handleStepProgress() {
+	$chart.selectAll('.year').classed('is-focus', (d, i) => i === currentIndex);
+	handleYearEnter();
 }
 
 function handleAnnoEnter({ data }) {
@@ -198,7 +194,7 @@ function createAnnotation(data) {
 
 function resize() {
 	charCount = Math.floor(window.innerHeight * 0.3);
-
+	halfH = window.innerHeight / 2;
 	const $year = $timeline.select('.year');
 	if ($year.size()) {
 		const timelineW = $timeline.node().offsetWidth;
@@ -227,8 +223,12 @@ function resize() {
 			.st('height', headH);
 
 		headlineHeight = Math.floor(headH / 12);
+		halfHeadH = headH / 2;
+		$chart
+			.st('margin-top', mobile ? 0 : -headH)
+			.st('padding-bottom', mobile ? 0 : headH / 2);
 
-		$chart.st('margin-top', mobile ? 0 : -headH);
+		$outro.st('margin-top', -headH / 2);
 
 		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
@@ -247,7 +247,7 @@ function resize() {
 		createAnnotation(annoData);
 	}
 
-	scroller.resize();
+	// scroller.resize();
 }
 
 function setupLiContent(datum) {
@@ -306,16 +306,29 @@ function setupTimeline() {
 	$li.each(setupLiContent);
 }
 
+function updateScroll() {
+	ticking = false;
+
+	const { top, height } = $chartEl.getBoundingClientRect();
+	const delta = (top - halfH) * -1;
+	const progress = Math.min(1, Math.max(0, delta / (height - halfHeadH)));
+	const index = Math.floor(progress * (numYears - 1));
+	if (index !== currentIndex) {
+		currentIndex = index;
+		handleStepProgress();
+	}
+}
+
+function onScroll() {
+	if (!ticking) {
+		ticking = true;
+		requestAnimationFrame(updateScroll);
+	}
+}
+
 function setupTrigger() {
-	scroller
-		.setup({
-			step: 'figure',
-			progress: true
-		})
-		.onStepEnter(handleStepEnter)
-		.onStepExit(handleStepExit)
-		.onStepProgress(handleStepProgress);
-	scroller.resize();
+	window.addEventListener('scroll', onScroll, true);
+	updateScroll();
 }
 
 function setupToggle() {
@@ -364,7 +377,7 @@ function loadHeadlines() {
 	d3.loadData('assets/data/headlines.csv', (err, response) => {
 		if (err) console.log(err);
 		headlineData = response[0];
-		handleStepProgress({ progress: 0 });
+		handleStepProgress();
 	});
 }
 
@@ -374,10 +387,9 @@ function loadResults() {
 			if (err) console.log(err);
 			monthData = fixGaps(response[0].filter(d => +d.year));
 			setupTimeline();
-			setupTrigger();
 			setupToggle();
-			handleStepProgress({ progress: 0 });
 			resize();
+			setupTrigger();
 			resolve();
 		});
 	});
