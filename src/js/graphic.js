@@ -60,7 +60,7 @@ function getHeadline(d) {
 	if (!match) return 'N/A';
 
 	const { headline, common, demonym, city, web_url } = match;
-	
+
 	const headlineS = Truncate({
 		text: headline,
 		chars: charCount,
@@ -72,16 +72,23 @@ function getHeadline(d) {
 		...demonym.split(':'),
 		...city.split(':')
 	];
+
 	const first = vals.find(v => v.includes(d.country[0]));
+
 	if (!first) return 'N/A';
 
-	const firstWord = first.split('(')[1].replace(')', '');
-	const start = headline.toLowerCase().indexOf(firstWord);
+	const firstWord = first
+		.split('(')[1]
+		.replace(')', '')
+		.trim();
+	const lower = headline.toLowerCase();
+	const start = lower.indexOf(firstWord);
 	const end = start + firstWord.length;
 
 	const before = headlineS.substring(0, start);
 	const between = headlineS.substring(start, end);
 	const after = headlineS.substring(end, headlineS.length);
+
 	return {
 		headline: `${before}<strong>${between}</strong>${after}`,
 		web_url,
@@ -115,7 +122,7 @@ function handleYearEnter() {
 
 	// TODO delete
 	$li.on('click', d => console.log(d.web_url));
-	$li.classed('is-fresh', d => d.fresh)
+	$li.classed('is-fresh', d => d.fresh);
 
 	$headline.classed('is-visible', true);
 }
@@ -253,8 +260,6 @@ function resize() {
 
 		createAnnotation(annoData);
 	}
-
-	// scroller.resize();
 }
 
 function setupLiContent(datum) {
