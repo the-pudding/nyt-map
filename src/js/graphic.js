@@ -2,6 +2,7 @@
 import * as Annotate from 'd3-svg-annotation';
 import Stickyfill from 'stickyfilljs';
 import Truncate from './utils/truncate';
+import { examples } from './annotations.json';
 
 const MONTHS = [
 	'Jan',
@@ -139,7 +140,7 @@ function handleAnnoEnter({ data }) {
 		.parent()
 		.parent();
 	$anno.select('.annotation-connector').st('opacity', 1);
-	console.log(data.year, data.month);
+
 	$chart
 		.select(`[data-id="${data.year}-${data.month}"]`)
 		.classed('is-focus', true);
@@ -163,42 +164,63 @@ function handleToggle() {
 	$toggle.text(show ? 'Show headlines' : 'Hide headlines');
 }
 
-function createAnnotation(data) {
+function adjustAnnoHeight() {
+	const $tspan = d3.select(this);
+	const dy = $tspan.at('dy');
+	$tspan.at('dy', dy === '0.8em' ? '1em' : '1.5em');
+}
+
+function adjustRectHeight() {
+	const $anno = d3.select(this);
+	const $rect = $anno.select('rect');
+	const h = +$rect.at('height');
+	const numLines = $anno.selectAll('tspan').size();
+	const height = h + numLines * 2.5;
+	$rect.at('height', height);
+}
+
+function createAnnotation() {
 	$annotation.select('.g-annotation').remove();
 	const $anno = $annotation.append('g.g-annotation');
 
-	const type = Annotate.annotationCustomType(Annotate.annotationCalloutCurve, {
-		className: 'custom',
-		connector: { type: 'curve', end: 'arrow' },
-		note: {
-			lineType: 'horizontal',
-			align: 'left'
+	const typeCurve = Annotate.annotationCustomType(
+		Annotate.annotationCalloutCurve,
+		{
+			className: 'custom',
+			connector: { type: 'curve', end: 'arrow' },
+			note: {
+				lineType: 'horizontal',
+				align: 'left'
+			}
 		}
-	});
-
-	const annotations = data.map(d => ({
+	);
+	const annotations = examples.map(d => ({
 		note: {
 			title: d.year,
-			label: d.label,
+			label: d.text,
 			padding: 0,
 			wrap: wrapLength,
-			bgPadding: { top: 5, left: 5, right: 5, bottom: 5 }
+			bgPadding: { top: 8, left: 8, right: 8, bottom: 8 }
 		},
 		data: { year: d.year, yearOff: +d.year - 1900, month: d.month },
-		dx: (12 - +d.month) * flagW + flagW,
-		dy: flagH * 3,
+		dx: (12 - +d.month) * flagW + flagW * 1.25,
+		dy: +d.pos * flagH * 3,
 		connector: { points: 1 }
 	}));
 
 	const makeAnnotations = Annotate.annotation()
-		.type(type)
+		.type(typeCurve)
 		.accessors({
 			x: d => d.month * flagW - flagW / 2,
-			y: d => d.yearOff * flagH + flagH / 2 + d.yearOff / 2
+			y: d => d.yearOff * flagH + flagH / 2
 		})
 		.annotations(annotations);
 
 	$anno.call(makeAnnotations);
+
+	// adjust line height
+	// $anno.selectAll('.annotation-note-label tspan').each(adjustAnnoHeight);
+	// $anno.selectAll('.annotation').each(adjustRectHeight);
 
 	$anno
 		.selectAll('.annotation-note-bg')
@@ -246,19 +268,7 @@ function resize() {
 
 		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
 
-		const test = d3
-			.range(100)
-			.map(() => 'm')
-			.join(' ');
-		const annoData = [
-			{
-				year: '1907',
-				month: '06',
-				label: test
-			}
-		];
-
-		createAnnotation(annoData);
+		createAnnotation();
 	}
 }
 
