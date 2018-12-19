@@ -125,8 +125,6 @@
 		line-height 1
 		set-type-size(root, false)
 		letter-spacing 0.025em
-		color $bg
-		font-weight 700
 		position absolute
 		top 100%
 		left 50%
@@ -197,3 +195,20 @@
 			visibility visible
 		+mq('bp-8')
 			display none
+	
+	.mobile-label
+		position fixed
+		transform translate(-50%, -50%)
+		z-index set-index(overlay)
+		pointer-events none
+		p
+			margin 0
+			set-type-size(small, false)
+			letter-spacing 0.025em
+			color $bg
+			font-weight 700
+			width 6rem
+			background-color $fg
+			padding 0.25rem 0
+			text-align center
+			line-height 1.2

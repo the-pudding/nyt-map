@@ -3,6 +3,7 @@ import * as Annotate from 'd3-svg-annotation';
 import Stickyfill from 'stickyfilljs';
 import Truncate from './utils/truncate';
 import { examples } from './annotations.json';
+import isMobile from './utils/is-mobile';
 
 const MONTHS = [
 	'Jan',
@@ -38,6 +39,7 @@ const $headlineList = $headline.select('ul');
 const $toggle = $timeline.select('.timeline__toggle');
 const $outro = d3.select('#outro');
 const $chartEl = $chart.node();
+const $mobileLabel = $timeline.select('.mobile-label');
 
 let flagW = 0;
 let flagH = 0;
@@ -156,6 +158,23 @@ function handleAnnoExit({ data }) {
 	$chart
 		.select(`[data-id="${data.year}-${data.month}"]`)
 		.classed('is-focus', false);
+}
+
+function handleTouchStart(d) {
+	const { top, left, width, height } = this.getBoundingClientRect();
+	const x = left + width / 2;
+	const y = top - height;
+	const match = countryData.find(c => c.commonLower === d);
+	$mobileLabel.select('p').text(match ? match.common : d);
+	$mobileLabel
+		.st({ top: y, left: x })
+		.transition()
+		.duration(0)
+		.st('opacity', 1)
+		.transition()
+		.delay(1000)
+		.duration(250)
+		.st('opacity', 0);
 }
 
 function handleToggle() {
@@ -286,7 +305,8 @@ function setupLiContent(datum) {
 		.append('div.country')
 		.classed('is-uk', d => d === 'united kingdom');
 
-	$country.append('span.flag').html(d => {
+	const $flag = $country.append('span.flag');
+	$flag.html(d => {
 		const match = countryData.find(c => c.commonLower === d) || {
 			cca2: 'none'
 		};
@@ -294,6 +314,8 @@ function setupLiContent(datum) {
 
 		return `<img data-src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
 	});
+
+	if (isMobile.any()) $flag.on('touchstart', handleTouchStart);
 
 	$country.append('span.name').text(d => {
 		const match = countryData.find(c => c.commonLower === d);

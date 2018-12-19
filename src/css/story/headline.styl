@@ -11,12 +11,14 @@
 	visibility hidden
 	opacity 0
 	border-top 1px solid $fg
-	
+	pointer-events none
+
 	&.is-visible
 		visibility visible
 
 	&.is-show 
 		opacity 1
+		pointer-events auto
 
 	
 	+mq('bp-8')
