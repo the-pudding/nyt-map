@@ -26,6 +26,7 @@ const REM = 16;
 let countryData = [];
 let monthData = [];
 let headlineData = [];
+
 // let headlinePrev = [];
 
 const $timeline = d3.select('#timeline');
@@ -47,6 +48,7 @@ let ticking = false;
 let halfH = 0;
 let halfHeadH = 0;
 let currentIndex = 0;
+let mobile = false;
 
 // const scroller = Scrollama();
 
@@ -234,7 +236,7 @@ function resize() {
 		const timelineW = $timeline.node().offsetWidth;
 		const yearW = $year.node().offsetWidth;
 
-		const mobile = timelineW < REM * 70;
+		mobile = timelineW < REM * 70;
 		const sideW = (timelineW - yearW) / 2;
 		const annotationW = mobile ? timelineW - 5 * REM : timelineW - sideW;
 
@@ -252,14 +254,14 @@ function resize() {
 		const headH = window.innerHeight - (mobile ? 3 : 5) * REM;
 
 		$headline
-			.st('width', mobile ? 280 : headW)
+			.st('width', mobile ? '100%' : headW)
 			.st('left', mobile ? 0 : headX)
-			.st('height', mobile ? window.innerHeight : headH);
+			.st('height', mobile ? window.innerHeight * 0.8 : headH);
 
 		halfHeadH = headH / 2;
 		$chart
 			.st('margin-top', mobile ? 0 : -headH)
-			.st('padding-bottom', mobile ? 0 : headH / 2);
+			.st('padding-bottom', mobile ? 0 : headH * 0.75);
 
 		$outro.st('margin-top', mobile ? 0 : -headH / 2);
 
@@ -331,8 +333,10 @@ function updateScroll() {
 	ticking = false;
 
 	const { top, height } = $chartEl.getBoundingClientRect();
-	const delta = (top - halfH * 0.5) * -1;
-	const progress = Math.min(1, Math.max(0, delta / (height - halfHeadH)));
+	const target = mobile ? halfH * 0.25 : halfH * 0.5;
+	const delta = (top - target) * -1;
+	const trueH = mobile ? height : height - halfHeadH * 1.5;
+	const progress = Math.min(1, Math.max(0, delta / trueH));
 	const index = Math.floor(progress * (numYears - 1));
 	if (index !== currentIndex) {
 		currentIndex = index;

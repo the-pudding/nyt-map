@@ -56,7 +56,8 @@ header.is-sticky
 		position fixed
 		top 0
 		right 0
-		transform translateX(100%)
+		opacity 0
+		pointer-events none
 		height 100vh
 		width 100%
 		max-width 30rem
@@ -69,7 +70,8 @@ header.is-sticky
 			border-left 1px solid $gray-dark
 
 		&.is-visible
-			transform translateX(0)
+			opacity 1
+			pointer-events auto
 
 		a
 			color $off-white

@@ -1,22 +1,23 @@
 #timeline .timeline__headline
 	left 0
-	top 0
+	bottom 0
 	transition opacity 250ms ease-in-out
-	max-width 40rem
+	width 100%
 	position fixed
 	background-color $bg
 	z-index set-index(top)
-	transform translate3d(-100%, 0, 0)
-	transition transform 250ms ease-in-out
-	border-right 1px solid $fg
+	transition transform 250ms ease-in-out	
 	padding 1rem
 	visibility hidden
-
+	opacity 0
+	border-top 1px solid $fg
+	
 	&.is-visible
 		visibility visible
 
 	&.is-show 
-		transform translate3d(0, 0, 0)
+		opacity 1
+
 	
 	+mq('bp-8')
 		display block
@@ -26,7 +27,10 @@
 		position sticky
 		transform translate3d(0, 0, 0)
 		padding 0 1rem
-	
+		opacity 1
+		max-width 40rem
+		border none
+
 	h3
 		margin 0
 		font-weight 700
