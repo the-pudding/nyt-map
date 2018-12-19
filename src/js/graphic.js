@@ -247,9 +247,7 @@ function createAnnotation() {
 		.on('mouseout', handleAnnoExit);
 }
 
-function resize() {
-	charCount = Math.floor(window.innerHeight * 0.3);
-	halfH = window.innerHeight / 2;
+function updateDimensions() {
 	const $year = $timeline.select('.year');
 	if ($year.size()) {
 		const timelineW = $timeline.node().offsetWidth;
@@ -293,6 +291,17 @@ function resize() {
 	}
 }
 
+function updateSizes() {
+	charCount = Math.floor(window.innerHeight * 0.3);
+	halfH = window.innerHeight / 2;
+}
+
+function resize() {
+	updateSizes();
+	reset();
+	updateDimensions();
+}
+
 function setupLiContent(datum) {
 	const $li = d3.select(this);
 	if (datum.year === '1900')
@@ -327,6 +336,8 @@ function setupLiContent(datum) {
 }
 
 function setupTimeline() {
+	$chart.selectAll('.year').remove();
+
 	const nested = d3
 		.nest()
 		.key(d => d.year)
@@ -376,6 +387,7 @@ function onScroll() {
 }
 
 function setupTrigger() {
+	window.removeEventListener('scroll', onScroll);
 	window.addEventListener('scroll', onScroll, true);
 	updateScroll();
 }
@@ -433,16 +445,19 @@ function fixGaps(data) {
 }
 
 function loadHeadlines() {
-	d3.loadData(
-		'assets/data/headlines.csv',
-		// 'assets/data/headlines-prev.csv',
-		(err, response) => {
-			if (err) console.log(err);
-			headlineData = response[0];
-			// headlinePrev = response[1];
-			handleStepProgress();
-		}
-	);
+	d3.loadData('assets/data/headlines.csv', (err, response) => {
+		if (err) console.log(err);
+		headlineData = response[0];
+		handleStepProgress();
+	});
+}
+
+function reset() {
+	setupTimeline();
+	setupToggle();
+	setupTrigger();
+	setupFlags();
+	handleStepProgress();
 }
 
 function loadResults() {
@@ -450,11 +465,9 @@ function loadResults() {
 		d3.loadData('assets/data/result--month.csv', (err, response) => {
 			if (err) console.log(err);
 			monthData = fixGaps(response[0].filter(d => +d.year));
-			setupTimeline();
-			setupToggle();
-			resize();
-			setupTrigger();
-			setupFlags();
+			updateSizes();
+			reset();
+			updateDimensions();
 			resolve();
 		});
 	});

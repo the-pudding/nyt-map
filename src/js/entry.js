@@ -33,7 +33,7 @@ function init() {
 	// add mobile class to body tag
 	$body.classed('is-mobile', isMobile.any());
 	// setup resize event
-	window.addEventListener('resize', debounce(resize, 150));
+	window.addEventListener('resize', debounce(resize, 500));
 	// setup sticky header menu
 	setupStickyHeader();
 	// kick off graphic code
