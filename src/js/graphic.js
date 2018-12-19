@@ -26,7 +26,7 @@ const REM = 16;
 let countryData = [];
 let monthData = [];
 let headlineData = [];
-let headlinePrev = [];
+// let headlinePrev = [];
 
 const $timeline = d3.select('#timeline');
 const $chart = $timeline.select('.figure__chart');
@@ -42,7 +42,6 @@ let flagW = 0;
 let flagH = 0;
 let wrapLength = 0;
 let numYears = 0;
-let headlineHeight = 0;
 let charCount = 0;
 let ticking = false;
 let halfH = 0;
@@ -55,9 +54,9 @@ function getHeadline(d) {
 	const match = headlineData.find(
 		h => h.month === d.month && h.year === d.year
 	);
-	const match2 = headlinePrev.find(
-		h => h.month === d.month && h.year === d.year
-	);
+	// const match2 = headlinePrev.find(
+	// 	h => h.month === d.month && h.year === d.year
+	// );
 	if (!match) return 'N/A';
 
 	const { headline, common, demonym, city, web_url } = match;
@@ -92,8 +91,8 @@ function getHeadline(d) {
 
 	return {
 		headline: `${before}<strong>${between}</strong>${after}`,
-		web_url,
-		fresh: web_url !== match2.web_url
+		web_url
+		// fresh: web_url !== match2.web_url
 	};
 }
 
@@ -105,7 +104,6 @@ function handleYearEnter() {
 	const { values } = datum;
 	values.sort((a, b) => d3.descending(a.count, b.count));
 	const data = values
-		.slice(0, 3)
 		.map(d => ({
 			month: MONTHS[+d.month - 1],
 			...getHeadline(d)
@@ -122,8 +120,8 @@ function handleYearEnter() {
 	$li.append('span.headline').html(d => d.headline);
 
 	// TODO delete
-	$li.on('click', d => console.log(d.web_url));
-	$li.classed('is-fresh', d => d.fresh);
+	// $li.on('click', d => console.log(d.web_url));
+	// $li.classed('is-fresh', d => d.fresh);
 
 	$headline.classed('is-visible', true);
 }
@@ -204,7 +202,7 @@ function createAnnotation() {
 		},
 		data: { year: d.year, yearOff: +d.year - 1900, month: d.month },
 		dx: (12 - +d.month) * flagW + flagW * 1.25,
-		dy: +d.pos * flagH * 3,
+		dy: +d.pos * flagH * 2,
 		connector: { points: 1 }
 	}));
 
@@ -258,7 +256,6 @@ function resize() {
 			.st('left', mobile ? 0 : headX)
 			.st('height', mobile ? window.innerHeight : headH);
 
-		headlineHeight = Math.floor(headH / 12);
 		halfHeadH = headH / 2;
 		$chart
 			.st('margin-top', mobile ? 0 : -headH)
@@ -266,7 +263,9 @@ function resize() {
 
 		$outro.st('margin-top', mobile ? 0 : -headH / 2);
 
-		wrapLength = Math.min(mobile ? sideW * 1.6 : sideW * 0.8, MAX_WRAP);
+		wrapLength = Math.floor(
+			Math.min(mobile ? sideW * 1.6 : sideW * 0.67, MAX_WRAP)
+		);
 
 		createAnnotation();
 	}
@@ -332,7 +331,7 @@ function updateScroll() {
 	ticking = false;
 
 	const { top, height } = $chartEl.getBoundingClientRect();
-	const delta = (top - halfH) * -1;
+	const delta = (top - halfH * 0.5) * -1;
 	const progress = Math.min(1, Math.max(0, delta / (height - halfHeadH)));
 	const index = Math.floor(progress * (numYears - 1));
 	if (index !== currentIndex) {
@@ -398,11 +397,11 @@ function fixGaps(data) {
 function loadHeadlines() {
 	d3.loadData(
 		'assets/data/headlines.csv',
-		'assets/data/headlines-prev.csv',
+		// 'assets/data/headlines-prev.csv',
 		(err, response) => {
 			if (err) console.log(err);
 			headlineData = response[0];
-			headlinePrev = response[1];
+			// headlinePrev = response[1];
 			handleStepProgress();
 		}
 	);
