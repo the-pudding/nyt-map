@@ -270,6 +270,7 @@ function resize() {
 		);
 
 		createAnnotation();
+		handleStepProgress();
 	}
 }
 
@@ -341,6 +342,7 @@ function updateScroll() {
 	if (index !== currentIndex) {
 		currentIndex = index;
 		handleStepProgress();
+		$toggle.classed('is-visible', true);
 	}
 }
 
