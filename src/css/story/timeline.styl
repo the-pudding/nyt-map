@@ -103,6 +103,7 @@
 		color $fg
 		opacity 0.8
 		transform translate(-0.5rem, 1px)
+		letter-spacing 0.05em
 		+mq('bp-8')
 			transform translate(-1rem, 4px)
 
@@ -114,7 +115,7 @@
 		line-height 1
 		transform scale(1)
 		position relative
-		background-color $bg
+		background-color $fg
 		opacity 1
 		+mq('bp-8')
 			opacity 0.65
@@ -160,101 +161,13 @@
 		width 100%
 		transform translateY(-200%)
 		opacity 0.8
+		letter-spacing 0.05em
 		set-type-size(xxx-small, false)
 		+mq('bp-3')
 			set-type-size(xx-small, false)
 
 	.year:first-of-type li .month
 		display block
-
-		
-
-	.timeline__headline
-		left 0
-		top 0
-		transition opacity 250ms ease-in-out
-		max-width 40rem
-		position fixed
-		background-color $bg
-		z-index set-index(top)
-		transform translate3d(-100%, 0, 0)
-		transition transform 250ms ease-in-out
-		border-right 1px solid $fg
-		padding 1rem
-		visibility hidden
-
-		&.is-visible
-			visibility visible
-
-		&.is-show 
-			transform translate3d(0, 0, 0)
-		
-		+mq('bp-8')
-			display block
-			top 4rem
-			bottom auto
-			border none
-			position sticky
-			transform translate3d(0, 0, 0)
-			padding 0 1rem
-		
-		h3
-			margin 0
-			font-weight 700
-			text-transform uppercase
-			letter-spacing 0.05em
-			set-type-size(medium)
-			line-height 1
-			margin-bottom 0.5rem
-		
-		p
-			margin 0
-			margin-bottom 0.5rem
-			set-type-size(small, false)
-			line-height 1.2
-
-		
-		
-		li
-			margin-bottom 0.5rem
-			padding-top 0.5rem
-			set-type-size(small, false)
-			line-height 1.25
-			border-top 1px dashed lighten($fg, 30)
-
-			&.is-fresh
-				background-color rgba(limegreen, 0.2)
-			+mq('bp-8')
-				set-type-size(root, false)
-
-			strong
-				border-bottom 2px solid $secondary
-				font-weight 500
-		
-		span.month
-			margin-right 0.25em
-			font-weight 700
-			text-transform uppercase
-			background-color lighten($fg, 20)
-			color $bg
-			padding 0.1em 0.35em
-			letter-spacing 0.05em
-			set-type-size(xxx-small)
-			+mq('bp-8')
-				set-type-size(xx-small)
-
-	
-	.timeline__annotation
-		top 5rem
-		right 1rem
-		p
-			margin 0
-			text-align right
-			font-weight 700
-		li
-			text-align right
-			font-weight 700
-			set-type-size(small, true)
 	
 	
 	.timeline__toggle

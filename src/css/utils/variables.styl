@@ -49,15 +49,19 @@ $green = #9fffce
 $tan = #F7F2EA
 $tan-dark = #BAB3A9
 $tan-darker = darken($tan-dark, 35)
-$bg = $tan
-$fg = $off-black
-$primary = $off-black
 
-$bg = $tan
-$fg = $tan-darker
+// dark
+$bg = $off-black
+$fg = $off-white
 $primary = $fg
-$secondary = $green
-$secondary = $red
+$secondary = lighten($red, 20)
+
+// light
+// $bg = $tan
+// $fg = $tan-darker
+// $primary = $fg
+// $secondary = $red
+
 $column-width = 40rem
 
 $type-size = {

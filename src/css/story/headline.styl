@@ -1,0 +1,83 @@
+#timeline .timeline__headline
+	left 0
+	top 0
+	transition opacity 250ms ease-in-out
+	max-width 40rem
+	position fixed
+	background-color $bg
+	z-index set-index(top)
+	transform translate3d(-100%, 0, 0)
+	transition transform 250ms ease-in-out
+	border-right 1px solid $fg
+	padding 1rem
+	visibility hidden
+
+	&.is-visible
+		visibility visible
+
+	&.is-show 
+		transform translate3d(0, 0, 0)
+	
+	+mq('bp-8')
+		display block
+		top 2rem
+		bottom auto
+		border none
+		position sticky
+		transform translate3d(0, 0, 0)
+		padding 0 1rem
+	
+	h3
+		margin 0
+		font-weight 700
+		text-transform uppercase
+		letter-spacing 0.05em
+		set-type-size(medium)
+		line-height 1
+		margin-bottom 0.5rem
+	
+	p
+		margin 0
+		margin-bottom 1rem
+		set-type-size(small, false)
+		line-height 1.5
+		letter-spacing 0.02em
+		color $secondary
+
+	
+	
+	li
+		margin-bottom 1rem
+		padding-top 1rem
+		set-type-size(small, false)
+		line-height 1.5
+		// light
+		// border-top 1px dashed lighten($fg, 30)
+		// dark
+		border-top 1px dashed darken($fg, 30)
+		letter-spacing 0.02em
+
+		&.is-fresh
+			background-color rgba(limegreen, 0.2)
+		+mq('bp-8')
+			set-type-size(small, false)
+			font-weight 500
+
+		strong
+			border-bottom 2px solid $secondary
+			font-weight 500
+	
+	span.month
+		margin-right 0.5em
+		font-weight 700
+		text-transform uppercase
+		// light
+		// background-color lighten($fg, 20)
+		// dark
+		background-color darken($fg, 20)
+		color $bg
+		padding 0.1em 0.35em
+		letter-spacing 0.05em
+		set-type-size(xxx-small)
+		+mq('bp-8')
+			set-type-size(xx-small)

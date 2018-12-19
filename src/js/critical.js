@@ -7,10 +7,8 @@ import './polyfills/includes';
 import { loadFontGroup } from './utils/load-font';
 
 const national = [
-	{ family: 'National 2 Narrow Web', weight: 200 },
 	{ family: 'National 2 Narrow Web', weight: 500 },
-	{ family: 'National 2 Narrow Web', weight: 700 },
-	{ family: 'National 2 Narrow Web', weight: 900 }
+	{ family: 'National 2 Narrow Web', weight: 700 }
 ];
 
 const tiempos = [
@@ -18,11 +16,11 @@ const tiempos = [
 	{ family: 'Tiempos Text Web', weight: 700 }
 ];
 
-const atlas = [
-	{ family: 'Atlas Grotesk Web', weight: 400 },
-	{ family: 'Atlas Grotesk Web', weight: 500 },
-	{ family: 'Atlas Grotesk Web', weight: 600 }
-];
+// const atlas = [
+// 	{ family: 'Atlas Grotesk Web', weight: 400 },
+// 	{ family: 'Atlas Grotesk Web', weight: 500 },
+// 	{ family: 'Atlas Grotesk Web', weight: 600 }
+// ];
 
 // polyfill promise
 if (!window.Promise) window.Promise = Promise;
