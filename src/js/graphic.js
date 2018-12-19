@@ -264,7 +264,7 @@ function resize() {
 		$outro.st('margin-top', mobile ? 0 : -headH / 2);
 
 		wrapLength = Math.floor(
-			Math.min(mobile ? sideW * 1.6 : sideW * 0.67, MAX_WRAP)
+			Math.min(mobile ? sideW * 1.6 : sideW * 0.7, MAX_WRAP)
 		);
 
 		createAnnotation();
@@ -289,7 +289,7 @@ function setupLiContent(datum) {
 		};
 		const { cca2 } = match;
 
-		return `<img src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
+		return `<img data-src="assets/flags/jpg-4x3-192-q70/${cca2.toLowerCase()}.jpg">`;
 	});
 
 	$country.append('span.name').text(d => {
@@ -356,6 +356,16 @@ function setupToggle() {
 	$toggle.on('click', handleToggle);
 }
 
+function showFlag() {
+	const $img = d3.select(this);
+	const src = $img.at('data-src');
+	$img.at('src', src);
+}
+
+function setupFlags() {
+	$chart.selectAll('img').each(showFlag);
+}
+
 function cleanCountry(data) {
 	return data.map(d => ({
 		...d,
@@ -416,6 +426,7 @@ function loadResults() {
 			setupToggle();
 			resize();
 			setupTrigger();
+			setupFlags();
 			resolve();
 		});
 	});
