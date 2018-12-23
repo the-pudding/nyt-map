@@ -28,6 +28,8 @@
 						margin-bottom 110%
 					.country.is-uk
 						margin-bottom 140%
+					.country
+						opacity 1
 					.name
 						visibility visible
 						opacity 1
@@ -108,6 +110,8 @@
 
 	.country
 		position relative
+		&:nth-of-type(2)
+			opacity 0
 	
 	.flag
 		display inline-block
@@ -159,7 +163,7 @@
 		top 0
 		left 0
 		width 100%
-		transform translateY(-200%)
+		transform translateY(-250%)
 		opacity 0.8
 		letter-spacing 0.05em
 		font-weight 500
